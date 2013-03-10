@@ -26,7 +26,8 @@ class TorifudaController < UIViewController
 
     # 札とその子Viewのサイズを決める「縦サイズ」と「倍率」の初期化
     @fuda_height ||= $initial_fuda_height
-    @fuda_power, @fuda_width = fuda_power_and_width_by_height(@fuda_height)
+    @fuda_power, @fuda_width, @fuda_proportion =
+        fuda_power_and_width_by_height(@fuda_height, self.view)
     @font_size, @green_offset = font_size_and_green_offset
     
     # self.viewの上に、self.viewと同じ大きさの畳画像Viewを重ねる。
@@ -97,13 +98,13 @@ class TorifudaController < UIViewController
   end
 
   def slider_value_changed(sender)
-    set_size_of_fuda_by_height(sender.value)
-    @power_label.text= label_str_of_power
+    set_size_of_fuda_by_height(sender.value, @tatami_view)
   end
 
-  def set_size_of_fuda_by_height(fuda_height)
+  def set_size_of_fuda_by_height(fuda_height, super_view)
     @fuda_height = fuda_height
-    @fuda_power, @fuda_width = fuda_power_and_width_by_height(fuda_height)
+    @fuda_power, @fuda_width, @fuda_proportion =
+        fuda_power_and_width_by_height(fuda_height, super_view)
     @font_size, @green_offset = font_size_and_green_offset
 
     puts "@fuda_height => #{@fuda_height}"
@@ -119,12 +120,14 @@ class TorifudaController < UIViewController
       @label15[idx].frame = CGRectMake(origin.x, origin.y,
                                        label_size.width, label_size.height)
     end
+    @power_label.text= label_str_of_power
   end
 
-  def fuda_power_and_width_by_height(fuda_height)
+  def fuda_power_and_width_by_height(fuda_height, super_view)
     fuda_power = fuda_height / $fuda_size_in_mm.height
     fuda_width = $fuda_size_in_mm.width * fuda_power
-    return fuda_power, fuda_width
+    fuda_proportion = fuda_height / super_view.frame.size.height
+    return fuda_power, fuda_width, fuda_proportion
   end
 
   def draw_inside_fuda_view(fuda_view, green_offset, font_size)
@@ -198,11 +201,35 @@ class TorifudaController < UIViewController
 
       slider.value = slider_min_val + (x - slider_min_x) / (slider_max_x - slider_min_x) * (slider_max_val - slider_min_val)
 
-      set_size_of_fuda_by_height(slider.value)
-      @power_label.text= label_str_of_power
-
+      set_size_of_fuda_by_height(slider.value, @tatami_view)
     end
 
+  end
+
+  # 回転して良いものとする。
+  def shouldAutorotate
+    true
+  end
+
+  # 全方向への回転を許可する。
+  def supportedInterfaceOrientations
+    UIInterfaceOrientationMaskAll
+  end
+
+  def willAnimateRotationToInterfaceOrientation(orientation, duration: duration)
+    frame_size = self.view.frame.size
+    prev_orientation = @orientation || UIDeviceOrientationPortrait
+    puts "(rotating) frame_size => [#{frame_size.width}, #{frame_size.height}]"
+    puts "(rotating) 現在のorientation => #{prev_orientation}"
+    puts "(rotating) 新しいorientation => #{orientation}"
+    @orientation = orientation
+    new_fuda_height = case orientation
+                        when UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight
+                          frame_size.width  * @fuda_proportion
+                        else
+                          frame_size.height * @fuda_proportion
+                      end
+    set_size_of_fuda_by_height(new_fuda_height, @tatami_view)
   end
 end
 
