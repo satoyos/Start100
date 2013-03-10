@@ -158,12 +158,9 @@ class TorifudaController < UIViewController
     label_origin = []
     (0..14).each do |label_idx|
       clmn_idx = case label_idx
-                   when (0..4)
-                     2
-                   when (5..9)
-                     1
-                   else
-                     0
+                   when (0..4); 2
+                   when (5..9); 1
+                   else       ; 0
                  end
       label_origin[label_idx] =
           CGPointMake(label_origin_zero.x + label_size.width * clmn_idx,
