@@ -56,9 +56,16 @@ class TorifudaController < UIViewController
     slider_size = CGSizeMake(@tatami_view.frame.size.width-20, slider_height)
     slider = UISlider.alloc.initWithFrame([[10, @tatami_view.frame.size.height - slider_height],
                                            slider_size])
+    #noinspection RailsParamDefResolve
+    tapGestureRecognizer = UITapGestureRecognizer.alloc.initWithTarget(self, action: 'slider_tapped:')
+    tapGestureRecognizer.numberOfTapsRequired= 2
+    slider.addGestureRecognizer(tapGestureRecognizer)
+
+#    slider.continuous= false
     slider.minimumValue= 100
     slider.maximumValue= 900
     slider.value= @fuda_height # 初期値
+                               #noinspection RailsParamDefResolve
     slider.addTarget(self, action: 'slider_value_changed:', forControlEvents: UIControlEventValueChanged)
 
     self.view.addSubview(slider)
@@ -106,7 +113,9 @@ class TorifudaController < UIViewController
     label_origin, label_size = calc_label_origin_and_size(fuda_size)
     label_origin.each_with_index do |origin, idx|
       new_font = @label15[idx].font.fontWithSize(@font_size)
+      #noinspection RubyResolve
       @label15[idx].font = new_font
+      #noinspection RubyResolve
       @label15[idx].frame = CGRectMake(origin.x, origin.y,
                                        label_size.width, label_size.height)
     end
@@ -129,7 +138,7 @@ class TorifudaController < UIViewController
 
     torifuda_str = 'わかころもてにゆきはふりつつ'
     torifuda_str_array = torifuda_str.split(//u)
-    label_font = UIFont.fontWithName($fontNameHash[:hiraminN], size: @font_size)
+    label_font = UIFont.fontWithName($fontNameHash[:hiraminN], size: font_size)
     label_origin.each_with_index do |origin, idx|
       # puts "%2d => %s" % [idx, origin]
       label = UILabel.alloc.initWithFrame([origin, label_size])
@@ -175,7 +184,31 @@ class TorifudaController < UIViewController
     CGRectMake(offset, offset,
                fuda_size.width - offset * 2, fuda_size.height - offset * 2)
   end
+
+  THUMB_WIDTH = 11
+
+  def slider_tapped(gesture_recognizer)
+    if gesture_recognizer.state == UIGestureRecognizerStateEnded
+      slider = gesture_recognizer.view
+      x = gesture_recognizer.locationInView(slider).x
+      puts "x = #{x}"
+      slider_min_x = slider.frame.origin.x + THUMB_WIDTH
+      slider_max_x = slider.frame.origin.x + slider.frame.size.width - THUMB_WIDTH
+      x = slider_min_x if x < slider_min_x
+      x = slider_max_x if x > slider_max_x
+      slider_min_val = slider.minimumValue
+      slider_max_val = slider.maximumValue
+
+      slider.value = slider_min_val + (x - slider_min_x) / (slider_max_x - slider_min_x) * (slider_max_val - slider_min_val)
+
+      set_size_of_fuda_by_height(slider.value)
+      @power_label.text= label_str_of_power
+
+    end
+
+  end
 end
+
 
 __END__
 
