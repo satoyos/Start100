@@ -1,8 +1,10 @@
 class FudaView < UIImageView
   # 札のサイズに関するグローバル変数の設定
-  $initial_fuda_height = 300
-  $initial_font_size   = 30
-  $fuda_size_in_mm = CGSizeMake(53.0, 73.0)
+  INITIAL_FONT_HEIGHT   = 30
+  FUDA_SIZE_IN_MM = CGSizeMake(53.0, 73.0)  # 札ビューはこの縦横比になる。
+
+  FONT_SIZE_DIVIDED_BY_POWER = 11 # これに@fuda_powerをかけたものが@font_sizeの値となる。
+  OFFSET_DIVIDED_BY_POWER = 2     # これに@fuda_powerをかけたものが@green_offsetの値となる。
 
   # 以下、サイズに関係なく共通するグローバル変数の設定
   $fudaInsideColor = '#FFF7E5'.to_color
@@ -29,7 +31,7 @@ class FudaView < UIImageView
     # (ラベルについても、サイズの情報は一切設定しない。)
     @labels15 = []
     torifuda_str_array = string.split(//u)
-    label_font = UIFont.fontWithName($fontNameHash[:hiraminN], size: $initial_font_size)
+    label_font = UIFont.fontWithName($fontNameHash[:hiraminN], size: INITIAL_FONT_HEIGHT)
     (0..14).each do |idx|
       l = UILabel.alloc.initWithFrame(CGRectZero)
       l.text= torifuda_str_array[idx] || ''
@@ -49,8 +51,8 @@ class FudaView < UIImageView
     # 札Viewのframeを決める(originは未定)
     @height = fuda_height
     puts "FudaView.height is set!  => #{@height}"
-    @fuda_power  = @height / $fuda_size_in_mm.height
-    width = $fuda_size_in_mm.width * @fuda_power
+    @fuda_power  = @height / FUDA_SIZE_IN_MM.height
+    width = FUDA_SIZE_IN_MM.width * @fuda_power
 
     self.frame = [CGPointZero, [width, @height]]
 
@@ -61,8 +63,8 @@ class FudaView < UIImageView
   # 札View自体のサイズが決定した結果を受けて、札Viewの子Viewのサイズも決める。
   def set_size_of_subviews
     # フォントのサイズと札の緑の額縁の幅は、@fuda_powerを元にここで計算している。
-    @font_size = @fuda_power * 11
-    @green_offset = @fuda_power * 2
+    @font_size = @fuda_power * FONT_SIZE_DIVIDED_BY_POWER
+    @green_offset = @fuda_power * OFFSET_DIVIDED_BY_POWER
 
     # 札の白い和紙部分や、その中のラベルのサイズ、フォントのサイズをここで決める。
     set_fuda_inside_view_size()
