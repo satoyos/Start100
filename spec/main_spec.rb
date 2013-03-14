@@ -3,7 +3,8 @@ describe "Application 'start100'" do
     @app = UIApplication.sharedApplication
   end
 
-  it "has one window" do
-    @app.windows.size.should == 1
+  it 'has one controller' do
+    controller = @app.keyWindow.rootViewController
+    controller.is_a?(TorifudaController).should == true
   end
 end
