@@ -6,6 +6,8 @@ class FudaView < UIImageView
   FONT_SIZE_DIVIDED_BY_POWER = 11 # これに@fuda_powerをかけたものが@font_sizeの値となる。
   OFFSET_DIVIDED_BY_POWER = 2     # これに@fuda_powerをかけたものが@green_offsetの値となる。
 
+  STRING_NOT_SET_MESSAGE = '札の文字はまだ決まっていません'
+
   # 以下、サイズに関係なく共通するグローバル変数の設定
   $fudaInsideColor = '#FFF7E5'.to_color
   $fontNameHash = {

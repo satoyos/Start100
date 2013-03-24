@@ -1,9 +1,8 @@
 class TorifudaController < UIViewController
   
 
-  def initWithFudaHeight(fuda_height)
+  def initWithFudaHeight(fuda_height, string: string)
     self.initWithNibName(nil, bundle: nil)
-    string = 'わかころもてにゆきはふりつつ'
     @fuda_height = fuda_height
     @fuda_view = FudaView.alloc.initWithString(string)
     self
