@@ -37,13 +37,13 @@ describe 'FudaView' do
 
     end
     it 'should have half size frame' do
-      (@fuda_view.frame.size.height - INITIAL_HEIGHT/2).abs.should < 1.0
+      @fuda_view.frame.size.height.should.close?(INITIAL_HEIGHT/2, 1.0)
     end
     it 'should have subViews of half size' do
 
       @fuda_view.instance_eval do
-        (@fuda_inside_view.frame.size.height - @org_inside_view_size.height/2).abs.should < 1.0
-        (@labels15.first.frame.size.height - @org_label_size.height/2).abs.should < 1.0
+        @fuda_inside_view.frame.size.height.should.close?(@org_inside_view_size.height/2, 1.0)
+        @labels15.first.frame.size.height.should.close?(@org_label_size.height/2, 1.0)
       end
      end
   end

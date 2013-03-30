@@ -1,4 +1,4 @@
-class TorifudaController < UIViewController
+class TorifudaController < UINavigationController
   
 
   def initWithFudaHeight(fuda_height, string: string)
