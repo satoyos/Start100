@@ -6,6 +6,13 @@ class AppDelegate
     torifuda_controller = TorifudaController.alloc.initWithFudaHeight(400, string: 'わかころもてにゆきはふりつつ')
     @window.rootViewController= torifuda_controller
 
+    @deck = Deck.new
+
     true
+
+  end
+
+  def deck
+    @deck
   end
 end
