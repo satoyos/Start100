@@ -4,7 +4,7 @@ describe 'TorifudaController' do
   end
 
   it 'should be a instance of a UINavigationController' do
-    @controller.should.is_a?(UINavigationController)
+    @controller.is_a?(UINavigationController).should == true
   end
 
   it 'has a fuda_view that is not empty' do

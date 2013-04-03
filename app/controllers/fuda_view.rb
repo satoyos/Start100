@@ -52,7 +52,6 @@ class FudaView < UIImageView
   def set_size_by_height(fuda_height)
     # 札Viewのframeを決める(originは未定)
     @height = fuda_height
-    puts "FudaView.height is set!  => #{@height}"
     @fuda_power  = @height / FUDA_SIZE_IN_MM.height
     width = FUDA_SIZE_IN_MM.width * @fuda_power
 
