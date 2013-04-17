@@ -1,5 +1,5 @@
 class Poem
-  PROPERTIES = [:number, :poet]
+  PROPERTIES = [:number, :poet, :liner, :in_hiragana, :kimari_ji]
   PROPERTIES.each do |prop|
     attr_accessor prop
   end
@@ -8,5 +8,6 @@ class Poem
     attributes.each do  |key, value|
       self.send("#{key}=", value) if PROPERTIES.member? key.to_sym
     end
+    self.in_hiragana = Liner_2_parts.new(self.in_hiragana)
   end
 end

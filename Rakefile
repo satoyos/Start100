@@ -2,7 +2,6 @@
 $:.unshift("/Library/RubyMotion/lib")
 require 'motion/project'
 require 'bubble-wrap'
-require 'motion-redgreen'
 
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
@@ -14,6 +13,4 @@ Motion::Project::App.setup do |app|
 
   app.provisioning_profile = '/Users/yoshi/Library/MobileDevice/Provisioning/My_Provisioning_for_Test_App_on_iPhone5.mobileprovision'
 	
-  app.redgreen_style = :full # default: :focused
-
 end
