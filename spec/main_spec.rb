@@ -4,9 +4,9 @@ describe "Application 'start100'" do
     @delegate = @app.delegate
   end
 
-  it 'has one controller' do
+  it 'has rootViewController of PoemTableController' do
     controller = @app.keyWindow.rootViewController
-    controller.is_a?(TorifudaController).should == true
+    controller.is_a?(PoemTableController).should == true
   end
 
   describe 'Application Delegate has a Deck' do
