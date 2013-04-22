@@ -33,7 +33,8 @@ class FudaView < UIImageView
     # (ラベルについても、サイズの情報は一切設定しない。)
     @labels15 = []
     torifuda_str_array = string.split(//u)
-    label_font = UIFont.fontWithName($fontNameHash[:hiraminN], size: INITIAL_FONT_HEIGHT)
+#    label_font = UIFont.fontWithName($fontNameHash[:hiraminN], size: INITIAL_FONT_HEIGHT)
+    label_font = FontFactory.create_font_with_type(:japanese, size: INITIAL_FONT_HEIGHT)
     (0..14).each do |idx|
       l = UILabel.alloc.initWithFrame(CGRectZero)
       l.text= torifuda_str_array[idx] || ''

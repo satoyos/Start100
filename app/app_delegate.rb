@@ -5,7 +5,7 @@ class AppDelegate
 
 #    torifuda_controller = TorifudaController.alloc.initWithFudaHeight(400, string: 'わかころもてにゆきはふりつつ')
     @deck = Deck.new
-    poem_table_controller = PoemTableController.alloc.initWithDeck(@deck)
+    poem_table_controller = PoemTableController.alloc.initWithDeck(@deck, fontType: :japanese)
     @window.rootViewController= poem_table_controller
 
 

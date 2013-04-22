@@ -6,17 +6,23 @@ describe 'FudaView' do
     @fuda_view = @controller.instance_variable_get('@fuda_view')
   }
   describe 'initWithString' do
-    it 'it should not be nil' do
-      @fuda_view.should.not == nil
+    it 'should not be nil' do
+      @fuda_view.should.not.be.equal nil
     end
-    it 'has labels created from SHIMO_STR ' do
+    it 'should have labels created from SHIMO_STR ' do
       @fuda_view.instance_eval do
         @labels15.size.should == 15
         idx = Random.new.rand(0..14)
-        @labels15[idx].text.should == (SHIMO_STR[idx] || '')
+        @labels15[idx].text.should.be.equal (SHIMO_STR[idx] || '')
+      end
+    end
+    it 'should have labels of FontType: japanese' do
+      @fuda_view.instance_eval do
+        @labels15[0].font.fontName.should.be.equal FontFactory::FONT_TYPE_HASH[:japanese]
       end
     end
   end
+
   describe 'set_size_by_height' do
 
     before do

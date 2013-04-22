@@ -1,7 +1,7 @@
 describe PoemTableController do
   describe 'initialize' do
     before do
-      @poem_table_controller = PoemTableController.alloc.initWithDeck(Deck.new)
+      @poem_table_controller = PoemTableController.alloc.initWithDeck(Deck.new, fontType: :japanese)
       @deck = @poem_table_controller.deck
     end
 
@@ -22,7 +22,8 @@ describe PoemTableController do
 
   describe '2 important methods for UITableViewController' do
     before do
-      @poem_table_controller = PoemTableController.alloc.initWithDeck(Deck.new)
+      @accessoryType = UITableViewCellAccessoryDisclosureIndicator
+      @poem_table_controller = PoemTableController.alloc.initWithDeck(Deck.new, fontType: :japanese)
       @poem_table_controller.viewDidLoad
     end
 
@@ -39,6 +40,9 @@ describe PoemTableController do
                                               cellForRowAtIndexPath: indexPath)
       cell.should.not == nil
       cell.is_a?(UITableViewCell).should == true
+      cell.textLabel.font.fontName.should.equal FontFactory::FONT_TYPE_HASH[:japaneseW6]
+      cell.detailTextLabel.text.include?('天智天皇').should.be.equal true
+      cell.accessoryType.should.be.equal UITableViewCellAccessoryDisclosureIndicator
     end
   end
 

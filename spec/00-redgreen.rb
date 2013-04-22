@@ -1,7 +1,7 @@
 # Supported styles:
 # :focused, :full, :original
 # --------------
-style = :full
+style = :focused
 # --------------
 if Term.nil? || (style == :original)
   if Term.nil?
