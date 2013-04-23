@@ -14,6 +14,10 @@ describe PoemTableController do
       @deck.is_a?(Deck).should == true
     end
 
+    it 'should have title #{PoemTableController::DEFAULT_TITLE}' do
+      @poem_table_controller.title.should.equal PoemTableController::DEFAULT_TITLE
+    end
+
     it 'should be a dataSource of itself' do
       @poem_table_controller.viewDidLoad
       @poem_table_controller.table.dataSource.is_a?(PoemTableController).should == true
