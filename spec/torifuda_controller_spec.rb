@@ -3,8 +3,8 @@ describe 'TorifudaController' do
     @controller = TorifudaController.alloc.initWithFudaHeight(400, string: 'あいみての')
   end
 
-  it 'should be a instance of a UINavigationController' do
-    @controller.is_a?(UINavigationController).should == true
+  it 'should be a instance of a UIViewController' do
+    @controller.is_a?(UIViewController).should == true
   end
 
   it 'has a fuda_view that is not empty' do

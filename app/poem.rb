@@ -1,4 +1,5 @@
 class Poem
+  DEFAULT_LABEL_PATTERN = 'poem%03d'
   PROPERTIES = [:number, :poet, :liner, :in_hiragana, :kimari_ji]
   PROPERTIES.each do |prop|
     attr_accessor prop

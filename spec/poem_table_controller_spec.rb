@@ -6,21 +6,21 @@ describe PoemTableController do
     end
 
     it 'should not be nil' do
-      @poem_table_controller.should.not == nil
+      @poem_table_controller.should.not.be.equal nil
     end
 
     it 'should have a deck' do
-      @deck.should.not == nil
-      @deck.is_a?(Deck).should == true
+      @deck.should.not.be.equal nil
+      @deck.is_a?(Deck).should.be.true
     end
 
-    it 'should have title #{PoemTableController::DEFAULT_TITLE}' do
-      @poem_table_controller.title.should.equal PoemTableController::DEFAULT_TITLE
+    it 'should have title [PoemTableController::DEFAULT_TITLE]' do
+      @poem_table_controller.title.should.be.equal PoemTableController::DEFAULT_TITLE
     end
 
     it 'should be a dataSource of itself' do
       @poem_table_controller.viewDidLoad
-      @poem_table_controller.table.dataSource.is_a?(PoemTableController).should == true
+      @poem_table_controller.table.dataSource.is_a?(PoemTableController).should.be.true
     end
   end
 
@@ -34,8 +34,8 @@ describe PoemTableController do
     it 'should support tableView:numOfRowsInSection:' do
       number = @poem_table_controller.tableView(@poem_table_controller.table,
                                                  numberOfRowsInSection: nil)
-      number.should.not == nil
-      number.should == 100
+      number.should.not.be.equal nil
+      number.should.be.equal 100
     end
 
     it 'should support tableView:cellForRowAtIndexPath:' do
@@ -43,11 +43,14 @@ describe PoemTableController do
       cell = @poem_table_controller.tableView(@poem_table_controller.table,
                                               cellForRowAtIndexPath: indexPath)
       cell.should.not == nil
-      cell.is_a?(UITableViewCell).should == true
-      cell.textLabel.font.fontName.should.equal FontFactory::FONT_TYPE_HASH[:japaneseW6]
+      cell.is_a?(UITableViewCell).should.be.true
+      cell.textLabel.font.fontName.should.be.equal FontFactory::FONT_TYPE_HASH[:japaneseW6]
       cell.detailTextLabel.text.include?('天智天皇').should.be.equal true
       cell.accessoryType.should.be.equal UITableViewCellAccessoryDisclosureIndicator
+      cell.accessibilityLabel.should.match /poem[0-9][0-9][0-9]/
     end
+
+
   end
 
 end

@@ -1,16 +1,17 @@
 class PoemTableController < UITableViewController
   DEFAULT_FONT_SIZE  = 16
   DEFAULT_ROW_HEIGHT = DEFAULT_FONT_SIZE * 4
+  DEFAULT_TITLE = '取り札を見る'
 
-  attr_reader :deck, :table
+  attr_reader :deck, :table, :tapped
 
   def initWithDeck(deck, fontType: font_type)
     self.initWithNibName(nil, bundle: nil)
     @deck = deck
     @font_type = font_type
+    self.title= DEFAULT_TITLE
     self
   end
-
 
   def viewDidLoad
     super
@@ -21,10 +22,14 @@ class PoemTableController < UITableViewController
 
     @table.dataSource= self
     @table.delegate= self
+    @tapped = false
 
   end
 
   def tableView(tableView, numberOfRowsInSection: section)
+    unless self.deck
+      initWithDeck(Deck.new, fontType: :japanese)
+    end
     self.deck.poems.size
   end
 
@@ -46,16 +51,17 @@ class PoemTableController < UITableViewController
 =end
     cell.detailTextLabel.font = cell.textLabel.font.fontWithSize(DEFAULT_FONT_SIZE-2)
     cell.accessoryType= UITableViewCellAccessoryDisclosureIndicator
-
+    cell.accessibilityLabel= Poem::DEFAULT_LABEL_PATTERN % poem.number
 
     cell
   end
 
   def tableView(tableView, didSelectRowAtIndexPath: indexPath)
-    alert = UIAlertView.alloc.init
-    alert.message= self.deck.poems[indexPath.row].in_hiragana.shimo
-    alert.addButtonWithTitle('OK')
-    alert.show
+    @tapped = true
+    poem = self.deck.poems[indexPath.row]
+    torifuda_controller = TorifudaController.alloc.initWithFudaHeight(TorifudaController::DEFAULT_HEIGHT,
+                                                                      string: poem.in_hiragana.shimo)
+    self.navigationController.pushViewController(torifuda_controller, animated: true)
   end
 
 end

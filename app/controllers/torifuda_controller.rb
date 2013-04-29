@@ -1,5 +1,5 @@
-class TorifudaController < UINavigationController
-  
+class TorifudaController < UIViewController
+  DEFAULT_HEIGHT = 300
 
   def initWithFudaHeight(fuda_height, string: string)
     self.initWithNibName(nil, bundle: nil)
@@ -25,7 +25,9 @@ class TorifudaController < UINavigationController
   def set_tatami_view_on_me
     image = UIImage.imageNamed($tatami_jpg_file)
     @tatami_view = UIImageView.alloc.initWithImage(image)
-    @tatami_view.frame = [[0.0, 0.0], self.view.frame.size]
+    size = self.view.frame.size
+
+    @tatami_view.frame = [[0.0, 0.0], size]
     @tatami_view.autoresizingMask=
         UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight
     @tatami_view.contentMode= UIViewContentModeScaleAspectFill
@@ -37,8 +39,12 @@ class TorifudaController < UINavigationController
   def set_fuda_view_on_me
     @fuda_view.set_size_by_height(@fuda_height)
     fuda_size = @fuda_view.frame.size
+    height_offset = 0
+    if self.navigationController
+      height_offset = self.navigationController.navigationBar.frame.size.height / 2
+    end
     fuda_origin = CGPointMake(@tatami_view.frame.size.width / 2 - fuda_size.width / 2,
-                              @tatami_view.frame.size.height / 2 - fuda_size.height / 2)
+                              @tatami_view.frame.size.height / 2 - fuda_size.height / 2 - height_offset)
     @fuda_view.frame= [fuda_origin, fuda_size]
     @tatami_view.addSubview(@fuda_view)
     @fuda_proportion = @fuda_height / @tatami_view.frame.size.height
@@ -46,7 +52,8 @@ class TorifudaController < UINavigationController
 
   # 回転して良いものとする。
   def shouldAutorotate
-    true
+#    true
+    false
   end
 
   # 全方向への回転を許可する。
