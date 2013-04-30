@@ -20,9 +20,6 @@ describe 'FontFactory' do
       end
     end
 
-    #%ToDo: 次は、サポートしていないfont_typeで初期化しようとした場合を実装！
-    # → この時は、システムデフォルトフォントを指定して返す
-
     describe 'when unknown type is given' do
       before do
         @font = FontFactory.create_font_with_type(:xxxx, size: 10)

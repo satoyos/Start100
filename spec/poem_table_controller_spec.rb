@@ -45,7 +45,7 @@ describe PoemTableController do
       cell.should.not == nil
       cell.is_a?(UITableViewCell).should.be.true
       cell.textLabel.font.fontName.should.be.equal FontFactory::FONT_TYPE_HASH[:japaneseW6]
-      cell.detailTextLabel.text.include?('天智天皇').should.be.equal true
+      cell.detailTextLabel.text.include?('天智天皇').should.be.true
       cell.accessoryType.should.be.equal UITableViewCellAccessoryDisclosureIndicator
       cell.accessibilityLabel.should.match /poem[0-9][0-9][0-9]/
     end

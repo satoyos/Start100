@@ -4,12 +4,12 @@ describe 'TorifudaController' do
   end
 
   it 'should be a instance of a UIViewController' do
-    @controller.is_a?(UIViewController).should == true
+    @controller.is_a?(UIViewController).should.be.true
   end
 
   it 'has a fuda_view that is not empty' do
     @controller.instance_eval do
-      @fuda_view.should.not == nil
+      @fuda_view.should.not.be.equal nil
     end
   end
 

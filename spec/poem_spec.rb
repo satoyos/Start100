@@ -25,19 +25,19 @@ describe Poem do
     end
 
     it 'should be initialized by Hash data' do
-      @hash.is_a?(Hash).should == true
+      @hash.is_a?(Hash).should.be.true
     end
     it 'should not be nil' do
-      @poem.should.not == nil
+      @poem.should.not.be.equal nil
     end
     it 'should have"持統天皇" as poet' do
-      @poem.poet.should == '持統天皇'
+      @poem.poet.should.be.equal '持統天皇'
     end
     it 'should have liner data that consists of 5 parts' do
-      @poem.liner.size.should == 5
+      @poem.liner.size.should.be.equal 5
     end
     it 'should have 決まり字「はるす」' do
-      @poem.kimari_ji.should == 'はるす'
+      @poem.kimari_ji.should.be.equal 'はるす'
     end
 
   end
