@@ -18,3 +18,13 @@ class AppDelegate
     @deck
   end
 end
+
+class UINavigationController
+  def shouldAutorotate
+    self.visibleViewController.shouldAutorotate
+  end
+
+  def supportedInterfaceOrientations
+    self.visibleViewController.supportedInterfaceOrientations
+  end
+end

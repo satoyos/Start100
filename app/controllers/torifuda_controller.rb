@@ -18,8 +18,6 @@ class TorifudaController < UIViewController
     # 札Viewのframe設定と畳上への描画
     set_fuda_view_on_me()
 
-    # sliderをここで設置していたときの名残
-    # slider_test()
   end
 
   # self.viewの上に、self.viewと同じ大きさの畳画像Viewを重ねる。
@@ -42,23 +40,36 @@ class TorifudaController < UIViewController
     @fuda_view.set_size_by_height(@fuda_height)
     fuda_size   = @fuda_view.frame.size
     tatami_size = @tatami_view.frame.size
-    height_offset = case self.navigationController
-                      when nil; 0
-                      else; self.navigationController.navigationBar.frame.size.height / 2
-                    end
+    height_offset = calc_height_offset()
     fuda_origin = CGPointMake(tatami_size.width  / 2 - fuda_size.width  / 2,
-                              tatami_size.height / 2 - fuda_size.height / 2 - height_offset)
+                              tatami_size.height / 2 - fuda_size.height / 2 - height_offset / 2)
     @fuda_view.frame= [fuda_origin, fuda_size]
     @tatami_view.addSubview(@fuda_view)
-    @fuda_proportion = @fuda_height / @tatami_view.frame.size.height
+    @fuda_proportion = @fuda_height / (@tatami_view.frame.size.height - height_offset)
+    puts '------ 初期状態のサイズ  ------'
+    puts_views_data
+    puts "heigt_offset => #{height_offset}"
+    puts '-----------------------------'
   end
 
-  private :set_tatami_view_on_me, :set_fuda_view_on_me
+  # 初期状態のself.viewは、画面いっぱいのサイズ。
+  # しかし、回転後にリサイズされる時には、navigationBarなどの領域が差し引かれたサイズになる。
+  # そこで、初期状態の場合も回転後のサイズと同じサイズになるよう、heightの補正を行う。
+  def calc_height_offset
+    height_offset = case self.navigationController
+                      when nil;
+                        0
+                      else
+                        ; self.navigationController.navigationBar.frame.size.height
+                    end
+  end
+
+
+  private :set_tatami_view_on_me, :set_fuda_view_on_me, :calc_height_offset
 
   # 回転して良いものとする。
   def shouldAutorotate
-#    true
-    false
+    true
   end
 
   # 全方向への回転を許可する。
@@ -66,41 +77,51 @@ class TorifudaController < UIViewController
     UIInterfaceOrientationMaskAll
   end
 
-  # @param [Fixnum] orientation
-  # @param [Fixnum] duration
-  # @return []
   def willAnimateRotationToInterfaceOrientation(orientation, duration: duration)
-    frame_size = self.view.frame.size
+    self.navigationController.setNavigationBarHidden(should_hide_navigation_bar?(orientation),
+                                                     animated: true)
+    # ↑ これを最初にやっておかないと、中の畳Viewなどのサイズが
+    #   NavigationBarを消す前のサイズに設定されてしまう！
+    #   必ず最初にやっておくこと！
+
     prev_orientation = @orientation || UIDeviceOrientationPortrait
-    puts "(rotating) frame_size => [#{frame_size.width}, #{frame_size.height}]"
-    puts "(rotating) 現在のorientation => #{prev_orientation}"
-    puts "(rotating) 新しいorientation => #{orientation}"
+    puts "(rotating) orientation: #{prev_orientation} => #{orientation}"
     @orientation = orientation
-    new_fuda_height = case orientation
-                        when UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight
-                          frame_size.width  * @fuda_proportion
-                        else
-                          frame_size.height * @fuda_proportion
-                      end
+    new_fuda_height = @tatami_view.frame.size.height * @fuda_proportion
     @fuda_view.set_size_by_height(new_fuda_height)
     @fuda_view.center= @tatami_view.center
+    puts '++++ 回転によるサイズ変更 ++++'
+    puts_views_data
+    puts '++++++++++++++++++++++++++++'
   end
+
+  def should_hide_navigation_bar?(orientation)
+    set_navigation_bar_hidden = case orientation
+                                  when UIDeviceOrientationPortrait
+                                    false
+                                  else
+                                    true
+                                end
+  end
+
+  def puts_views_data
+    @tatami_view.frame.tap do |f|
+      puts "@tatami_view.frame.origin : #{[f.origin.x, f.origin.y]}"
+      puts "@tatami_view.frame.size   : #{[f.size.width, f.size.height]}"
+    end
+    @fuda_view.frame.tap do |f|
+      puts "@fuda_view.frame.origin   : #{[f.origin.x, f.origin.y]}"
+      puts "@fuda_view.frame.size     : #{[f.size.width, f.size.height]}"
+    end
+  end
+
+  private :should_hide_navigation_bar?, :puts_views_data
 end
 
 
 __END__
 
-    puts '++++++++++++++++'
-    puts "@tatami_view.frame.origin => #{[@tatami_view.frame.origin.x, @tatami_view.frame.origin.y]}"
-    puts "@tatami_view.frame.size   => #{[@tatami_view.frame.size.width, @tatami_view.frame.size.height]}"
-    puts "inside_view.frame.origin => #{[@fuda_inside_view.frame.origin.x, @fuda_inside_view.frame.origin.y]}"
-    puts "inside_view.frame.size   => #{[@fuda_inside_view.frame.size.width, @fuda_inside_view.frame.size.height]}"
-    puts "@fuda_view.frame.origin   => #{[@fuda_view.frame.origin.x, @fuda_view.frame.origin.y]}"
-    puts "@fuda_view.frame.size     => #{[@fuda_view.frame.size.width, @fuda_view.frame.size.height]}"
-    puts '++++++++++++++++'
 
-前回のコミットからの機能修正
- - 畳の描画位置が下にずれていた問題に対応した。
 
 
   def slider_test

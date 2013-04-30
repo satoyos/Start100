@@ -39,19 +39,20 @@ class PoemTableController < UITableViewController
     cell = tableView.dequeueReusableCellWithIdentifier(@reuseIdentifier) ||
         UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle,
         reuseIdentifier: @reuseIdentifier)
+
+    cell.contentView.subviews.each do |subview|
+      subview.removeFromSuperview
+    end
+
     poem = self.deck.poems[indexPath.row]
-    cell.textLabel.text = '%3d. %s %s %s' % [poem.number, poem.liner[0], poem.liner[1], poem.liner[2]]
-    cell.detailTextLabel.text = "　　 #{poem.poet}"
-    cell.textLabel.font= FontFactory.create_font_with_type(:japaneseW6, size: DEFAULT_FONT_SIZE)
-    cell.textLabel.baselineAdjustment= UIBaselineAdjustmentAlignBaselines
-=begin
-    org_frame = cell.textLabel.frame
-    cell.textLabel.frame= [CGPointMake(org_frame.origin.x, org_frame.origin.y+10),
-                           [org_frame.size.width, org_frame.size.height-10]]
-=end
-    cell.detailTextLabel.font = cell.textLabel.font.fontWithSize(DEFAULT_FONT_SIZE-2)
-    cell.accessoryType= UITableViewCellAccessoryDisclosureIndicator
-    cell.accessibilityLabel= Poem::DEFAULT_LABEL_PATTERN % poem.number
+    cell.tap do |c|
+      c.textLabel.text = '%3d. %s %s %s' % [poem.number, poem.liner[0], poem.liner[1], poem.liner[2]]
+      c.detailTextLabel.text = "　　 #{poem.poet}"
+      c.textLabel.font= FontFactory.create_font_with_type(:japaneseW6, size: DEFAULT_FONT_SIZE)
+      c.detailTextLabel.font = c.textLabel.font.fontWithSize(DEFAULT_FONT_SIZE-2)
+      c.accessoryType= UITableViewCellAccessoryDisclosureIndicator
+      c.accessibilityLabel= Poem::DEFAULT_LABEL_PATTERN % poem.number
+    end
 
     cell
   end
@@ -63,5 +64,16 @@ class PoemTableController < UITableViewController
                                                                       string: poem.in_hiragana.shimo)
     self.navigationController.pushViewController(torifuda_controller, animated: true)
   end
+
+  def shouldAutorotate
+    false
+  end
+
+  # 回転させようとしたが、回転前のView?が残ってしまい、綺麗に回転させられなかった。
+  def willAnimateRotationToInterfaceOrientation(orientation, duration: duration)
+    puts 'PoemTableControllerで回転を検出しました。'
+    @table.reloadData
+  end
+
 
 end

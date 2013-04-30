@@ -13,5 +13,9 @@ describe 'TorifudaController' do
     end
   end
 
+  #%Todo: iPhone回転時のテストを書こう！
+  describe 'when iPhone rotated' do
+    it 'should resize FudaView appropriately'
+  end
 
 end
