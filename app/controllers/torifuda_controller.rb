@@ -27,25 +27,27 @@ class TorifudaController < UIViewController
     image = UIImage.imageNamed(TATAMI_JPG_FILE)
     @tatami_view = UIImageView.alloc.initWithImage(image)
     size = self.view.frame.size
-
-    @tatami_view.frame = [[0.0, 0.0], size]
-    @tatami_view.autoresizingMask=
-        UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight
-    @tatami_view.contentMode= UIViewContentModeScaleAspectFill
-    @tatami_view.clipsToBounds= true
+    @tatami_view.tap do |tatami|
+      tatami.frame = [[0.0, 0.0], size]
+      tatami.autoresizingMask=
+          UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight
+      tatami.contentMode= UIViewContentModeScaleAspectFill
+      tatami.clipsToBounds= true
+    end
     self.view.addSubview(@tatami_view)
   end
 
   # 札Viewのframe設定と畳上への描画
   def set_fuda_view_on_me
     @fuda_view.set_size_by_height(@fuda_height)
-    fuda_size = @fuda_view.frame.size
-    height_offset = 0
-    if self.navigationController
-      height_offset = self.navigationController.navigationBar.frame.size.height / 2
-    end
-    fuda_origin = CGPointMake(@tatami_view.frame.size.width / 2 - fuda_size.width / 2,
-                              @tatami_view.frame.size.height / 2 - fuda_size.height / 2 - height_offset)
+    fuda_size   = @fuda_view.frame.size
+    tatami_size = @tatami_view.frame.size
+    height_offset = case self.navigationController
+                      when nil; 0
+                      else; self.navigationController.navigationBar.frame.size.height / 2
+                    end
+    fuda_origin = CGPointMake(tatami_size.width  / 2 - fuda_size.width  / 2,
+                              tatami_size.height / 2 - fuda_size.height / 2 - height_offset)
     @fuda_view.frame= [fuda_origin, fuda_size]
     @tatami_view.addSubview(@fuda_view)
     @fuda_proportion = @fuda_height / @tatami_view.frame.size.height

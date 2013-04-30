@@ -15,21 +15,49 @@ class FudaView < UIImageView
   WASHI_JPG_FILE  = 'washi_darkgreen 001.jpg'
   STRING_NOT_SET_MESSAGE = '札の文字はまだ決まっていません'
 
-
   # 札Viewのサイズ(frame.size)を決め、上に載るオブジェクトを積み上げる。
   # 札Viewの位置(frame.origin)にはCGPointZeroを設定する
   def initWithString(string)
+    create_green_frame_on_me()
+    create_background_view_on_me()
+    create_labels_on_me(string)
+    self
+  end
+
+  # 札Viewのframe.sizeを決めてしまう。
+  # また、札Viewに乗っているSubviewsのサイズもこのタイミングで決めてしまう。
+  def set_size_by_height(fuda_height)
+    # 札Viewのframeを決める(originは未定)
+    @height = fuda_height
+    @fuda_power  = fuda_height / FUDA_SIZE_IN_MM.height
+    width = FUDA_SIZE_IN_MM.width * @fuda_power
+
+    self.frame = [CGPointZero, [width, fuda_height]]
+
+    # 札Viewの子ビューについて、サイズを決定する。
+    set_size_of_subviews()
+  end
+
+  # 以下、プライベートな定義
+  private
+
+  # 緑和紙の「額縁」を生成して載せる。
+  def create_green_frame_on_me
     washi_image = UIImage.imageNamed(WASHI_JPG_FILE)
     self.initWithImage(washi_image)
+  end
 
-    # 札の白台紙ビューを生成して載せる。
-    # (ただし、frameにはCGRectZeroを設定し、frame以外の属性は設定しておく)
+  # 札の白台紙ビューを生成して載せる。
+  # (ただし、frameにはCGRectZeroを設定し、frame以外の属性は設定しておく)
+  def create_background_view_on_me
     @fuda_inside_view = UIView.alloc.initWithFrame(CGRectZero)
     @fuda_inside_view.backgroundColor= INSIDE_COLOR
     self.addSubview(@fuda_inside_view)
+  end
 
-    # stringの1文字ずつを割り当てた15枚のラベルを生成して載せる。
-    # (ラベルについても、サイズの情報は一切設定しない。)
+  # stringの1文字ずつを割り当てた15枚のラベルを生成して載せる。
+  # (ラベルについても、サイズの情報は一切設定しない。)
+  def create_labels_on_me(string)
     @labels15 = []
     torifuda_str_array = string.split(//u)
     label_font = FontFactory.create_font_with_type(:japanese, size: INITIAL_FONT_HEIGHT)
@@ -44,21 +72,6 @@ class FudaView < UIImageView
       self.addSubview(label)
       @labels15 << label
     end
-    self
-  end
-
-  # 札Viewのframe.sizeを決めてしまう。
-  # また、札Viewに乗っているSubviewsのサイズもこのタイミングで決めてしまう。
-  def set_size_by_height(fuda_height)
-    # 札Viewのframeを決める(originは未定)
-    @height = fuda_height
-    @fuda_power  = @height / FUDA_SIZE_IN_MM.height
-    width = FUDA_SIZE_IN_MM.width * @fuda_power
-
-    self.frame = [CGPointZero, [width, @height]]
-
-    # 札Viewの子ビューについて、サイズを決定する。
-    set_size_of_subviews()
   end
 
   # 札View自体のサイズが決定した結果を受けて、札Viewの子Viewのサイズも決める。

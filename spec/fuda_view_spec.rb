@@ -46,6 +46,7 @@ describe 'FudaView' do
         @fuda_inside_view.frame.size.height.should.close?(@org_inside_view_size.height/2, 1.0)
         @labels15.first.frame.size.height.should.close?(@org_label_size.height/2, 1.0)
       end
-     end
+    end
   end
+
 end
