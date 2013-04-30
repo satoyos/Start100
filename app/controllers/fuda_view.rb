@@ -1,49 +1,48 @@
 class FudaView < UIImageView
-  # 札のサイズに関するグローバル変数の設定
+  # 札のサイズに関する定数の設定
   INITIAL_FONT_HEIGHT   = 30
   FUDA_SIZE_IN_MM = CGSizeMake(53.0, 73.0)  # 札ビューはこの縦横比になる。
 
   FONT_SIZE_DIVIDED_BY_POWER = 11 # これに@fuda_powerをかけたものが@font_sizeの値となる。
   OFFSET_DIVIDED_BY_POWER = 2     # これに@fuda_powerをかけたものが@green_offsetの値となる。
 
-  STRING_NOT_SET_MESSAGE = '札の文字はまだ決まっていません'
-
-  # 以下、サイズに関係なく共通するグローバル変数の設定
-  $fudaInsideColor = '#FFF7E5'.to_color
-  $fontNameHash = {
+  # サイズ以外の定数の設定
+  INSIDE_COLOR = '#FFF7E5'.to_color
+  FONT_NAME_HASH = {
       hiraminN:   'HiraMinProN-W3',
       timesroman: 'TimesNewRomanPS-ItalicMT',
   }
-  $tatami_jpg_file = 'tatami 002.jpg'
-  $washi_jpg_file  = 'washi_darkgreen 001.jpg'
+  WASHI_JPG_FILE  = 'washi_darkgreen 001.jpg'
+  STRING_NOT_SET_MESSAGE = '札の文字はまだ決まっていません'
+
 
   # 札Viewのサイズ(frame.size)を決め、上に載るオブジェクトを積み上げる。
   # 札Viewの位置(frame.origin)にはCGPointZeroを設定する
   def initWithString(string)
-    washi_image = UIImage.imageNamed($washi_jpg_file)
+    washi_image = UIImage.imageNamed(WASHI_JPG_FILE)
     self.initWithImage(washi_image)
 
     # 札の白台紙ビューを生成して載せる。
     # (ただし、frameにはCGRectZeroを設定し、frame以外の属性は設定しておく)
     @fuda_inside_view = UIView.alloc.initWithFrame(CGRectZero)
-    @fuda_inside_view.backgroundColor= $fudaInsideColor
+    @fuda_inside_view.backgroundColor= INSIDE_COLOR
     self.addSubview(@fuda_inside_view)
 
     # stringの1文字ずつを割り当てた15枚のラベルを生成して載せる。
     # (ラベルについても、サイズの情報は一切設定しない。)
     @labels15 = []
     torifuda_str_array = string.split(//u)
-#    label_font = UIFont.fontWithName($fontNameHash[:hiraminN], size: INITIAL_FONT_HEIGHT)
     label_font = FontFactory.create_font_with_type(:japanese, size: INITIAL_FONT_HEIGHT)
     (0..14).each do |idx|
-      l = UILabel.alloc.initWithFrame(CGRectZero)
-      l.text= torifuda_str_array[idx] || ''
-      l.font= label_font
-      l.font= label_font
-      l.textAlignment= UITextAlignmentCenter
-      l.backgroundColor= UIColor.clearColor
-      self.addSubview(l)
-      @labels15 << l
+      label = UILabel.alloc.initWithFrame(CGRectZero)
+      label.tap do |l|
+        l.text= torifuda_str_array[idx] || ''
+        l.font= label_font
+        l.textAlignment= UITextAlignmentCenter
+        l.backgroundColor= UIColor.clearColor
+      end
+      self.addSubview(label)
+      @labels15 << label
     end
     self
   end

@@ -1,5 +1,6 @@
 class TorifudaController < UIViewController
   DEFAULT_HEIGHT = 300
+  TATAMI_JPG_FILE = 'tatami 002.jpg'
 
   def initWithFudaHeight(fuda_height, string: string)
     self.initWithNibName(nil, bundle: nil)
@@ -23,7 +24,7 @@ class TorifudaController < UIViewController
 
   # self.viewの上に、self.viewと同じ大きさの畳画像Viewを重ねる。
   def set_tatami_view_on_me
-    image = UIImage.imageNamed($tatami_jpg_file)
+    image = UIImage.imageNamed(TATAMI_JPG_FILE)
     @tatami_view = UIImageView.alloc.initWithImage(image)
     size = self.view.frame.size
 
@@ -49,6 +50,8 @@ class TorifudaController < UIViewController
     @tatami_view.addSubview(@fuda_view)
     @fuda_proportion = @fuda_height / @tatami_view.frame.size.height
   end
+
+  private :set_tatami_view_on_me, :set_fuda_view_on_me
 
   # 回転して良いものとする。
   def shouldAutorotate
