@@ -53,4 +53,21 @@ describe PoemTableController do
 
   end
 
+  # 下記のテストは、画面遷移を伴うタップのテストが書けるようになるまで封印。(T_T)
+=begin
+  describe 'when a poem is tapped' do
+    before do
+      @poem_table_controller = PoemTableController.alloc.initWithDeck(Deck.new, fontType: :japanese)
+      @poem_table_controller.viewDidLoad
+    end
+
+    it 'must happens that TorifudaController comes over' do
+      @poem_table_controller.tap('poem002')
+      nav_controller = @poem_table_controller.navigationController
+      nav_controller.topViewController.is_a?(TorifudaController).should.be.false
+    end
+  end
+=end
+
+
 end

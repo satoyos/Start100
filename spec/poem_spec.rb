@@ -1,4 +1,5 @@
-POEM_INIT_JSON =<<'EOF'
+describe Poem do
+  POEM_INIT_JSON =<<'EOF'
 {
     "number": 2,
     "poet": "持統天皇",
@@ -17,7 +18,6 @@ POEM_INIT_JSON =<<'EOF'
 }
 EOF
 
-describe Poem do
   describe 'initialize' do
     before do
       @hash = BW::JSON.parse(POEM_INIT_JSON)

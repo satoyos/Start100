@@ -61,7 +61,7 @@ class PoemTableController < UITableViewController
     @tapped = true
     poem = self.deck.poems[indexPath.row]
     torifuda_controller = TorifudaController.alloc.initWithFudaHeight(TorifudaController::DEFAULT_HEIGHT,
-                                                                      string: poem.in_hiragana.shimo)
+                                                                      poem: poem)
     self.navigationController.pushViewController(torifuda_controller, animated: true)
   end
 

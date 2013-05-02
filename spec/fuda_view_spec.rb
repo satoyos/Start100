@@ -5,7 +5,7 @@ describe 'FudaView' do
     @controller = TorifudaController.alloc.initWithFudaHeight(INITIAL_HEIGHT, string: SHIMO_STR)
     @fuda_view = @controller.instance_variable_get('@fuda_view')
   }
-  describe 'initWithString' do
+  describe 'initialize with string' do
     it 'should not be nil' do
       @fuda_view.should.not.be.equal nil
     end
@@ -23,7 +23,10 @@ describe 'FudaView' do
     end
   end
 
+
+
   describe 'set_size_by_height' do
+
 
     before do
       # 一度札Viewの高さをINITIAL_HEIGHTに設定しておき、その時の諸々のサイズを取得しておく。

@@ -111,9 +111,7 @@ class FudaView < UIImageView
       label_origin =
           CGPointMake(label_origin_zero.x + label_size.width * clmn_idx,
                       label_origin_zero.y + label_size.height * (idx % 5))
-      #noinspection RubyResolve
       label.frame = [label_origin, label_size]
-      #noinspection RubyResolve
       label.font  = new_font
 
     end

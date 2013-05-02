@@ -2,11 +2,28 @@ class TorifudaController < UIViewController
   DEFAULT_HEIGHT = 300
   TATAMI_JPG_FILE = 'tatami 002.jpg'
 
+  PROPERTIES = [:fuda_height, :fuda_view, :number, :player]
+  PROPERTIES.each do |prop|
+    attr_reader prop
+  end
+
   def initWithFudaHeight(fuda_height, string: string)
     self.initWithNibName(nil, bundle: nil)
     @fuda_height = fuda_height
     @fuda_view = FudaView.alloc.initWithString(string)
     self
+  end
+
+  def initWithFudaHeight(fuda_height, poem: poem)
+    self.initWithFudaHeight(fuda_height, string: poem.in_hiragana.shimo)
+    @number = poem.number
+    base_name = 'audio/%03d' % self.number
+    url = NSURL.fileURLWithPath(NSBundle.mainBundle.pathForResource(base_name, ofType: "m4a"))
+    er = Pointer.new(:object)
+    @player = AVAudioPlayer.alloc.initWithContentsOfURL(url, error: er)
+
+    self
+
   end
 
   def viewDidLoad
@@ -18,6 +35,7 @@ class TorifudaController < UIViewController
     # 札Viewのframe設定と畳上への描画
     set_fuda_view_on_me()
 
+    @player.play
   end
 
   # self.viewの上に、self.viewと同じ大きさの畳画像Viewを重ねる。
