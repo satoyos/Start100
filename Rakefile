@@ -6,6 +6,7 @@ require 'bubble-wrap'
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
   app.name = 'start100'
+  app.frameworks += ['AVFoundation', 'AudioToolbox']
 
   app.codesign_certificate = 'iPhone Developer: Yoshifumi Sato'
 
