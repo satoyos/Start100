@@ -101,6 +101,7 @@ class FudaView < UIImageView
     label_size = CGSizeMake((fuda_size.width - @green_offset * 2) / 3,
                             (fuda_size.height - @green_offset * 2) / 5)
     label_origin_zero = CGPoint.new(@green_offset, @green_offset + @font_size * 2 / 10)
+    # 和風フォントで上下方向のセンタリングがうまく機能しないので、補正。 ^^^^^^^^^^^^^^^^^^^^^
     new_font = @labels15.first.font.fontWithSize(@font_size)
     @labels15.each_with_index do |label, idx|
       clmn_idx = case idx
