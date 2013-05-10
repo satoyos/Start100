@@ -2,7 +2,7 @@ describe 'FontFactory' do
   describe 'create_font_with_type' do
     shared 'a UIFont' do
       it 'should not be nil' do
-        @font.should.not.be.equal nil
+        @font.should.not.be.nil
       end
 
       it 'should be a UIFont' do

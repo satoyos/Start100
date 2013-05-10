@@ -9,7 +9,7 @@ describe Liner_2_parts do
       @l2p = Liner_2_parts.new(INIT_HASH_L2)
     end
     it 'should not be nil' do
-      @l2p.should.not.be.equal nil
+      @l2p.should.not.be.nil
     end
 
     it 'should have 上の句 as 「花さそふ嵐の庭の雪ならで」' do

@@ -7,7 +7,10 @@ describe 'FudaView' do
   }
   describe 'initialize with string' do
     it 'should not be nil' do
-      @fuda_view.should.not.be.equal nil
+      @fuda_view.should.not.be.nil
+    end
+    it 'should have accessibilityLabel' do
+      @fuda_view.accessibilityLabel.should.equal FudaView::ACCESSIBILITY_LABEL
     end
     it 'should have labels created from SHIMO_STR ' do
       @fuda_view.instance_eval do

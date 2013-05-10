@@ -14,10 +14,13 @@ class FudaView < UIImageView
   }
   WASHI_JPG_FILE  = 'washi_darkgreen 001.jpg'
   STRING_NOT_SET_MESSAGE = '札の文字はまだ決まっていません'
+  ACCESSIBILITY_LABEL = 'fuda_view'
+  ACC_LABEL_OF_INSIDE_VIEW = 'inside_view'
 
   # 札Viewのサイズ(frame.size)を決め、上に載るオブジェクトを積み上げる。
   # 札Viewの位置(frame.origin)にはCGPointZeroを設定する
   def initWithString(string)
+    self.accessibilityLabel= ACCESSIBILITY_LABEL
     create_green_frame_on_me()
     create_background_view_on_me()
     create_labels_on_me(string)
@@ -51,7 +54,10 @@ class FudaView < UIImageView
   # (ただし、frameにはCGRectZeroを設定し、frame以外の属性は設定しておく)
   def create_background_view_on_me
     @fuda_inside_view = UIView.alloc.initWithFrame(CGRectZero)
-    @fuda_inside_view.backgroundColor= INSIDE_COLOR
+    @fuda_inside_view.tap do |i_view|
+      i_view.backgroundColor= INSIDE_COLOR
+      i_view.accessibilityLabel= ACC_LABEL_OF_INSIDE_VIEW
+    end
     self.addSubview(@fuda_inside_view)
   end
 
@@ -94,8 +100,6 @@ class FudaView < UIImageView
                                          fuda_size.height - @green_offset * 2)
   end
 
-
-  # @param [UILabel] label
   def set_label_size
     fuda_size = self.frame.size
     label_size = CGSizeMake((fuda_size.width - @green_offset * 2) / 3,

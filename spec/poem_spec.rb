@@ -28,7 +28,7 @@ EOF
       @hash.is_a?(Hash).should.be.true
     end
     it 'should not be nil' do
-      @poem.should.not.be.equal nil
+      @poem.should.not.be.nil
     end
     it 'should have"持統天皇" as poet' do
       @poem.poet.should.be.equal '持統天皇'

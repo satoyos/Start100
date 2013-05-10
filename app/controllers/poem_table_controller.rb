@@ -2,8 +2,9 @@ class PoemTableController < UITableViewController
   DEFAULT_FONT_SIZE  = 16
   DEFAULT_ROW_HEIGHT = DEFAULT_FONT_SIZE * 4
   DEFAULT_TITLE = '取り札を見る'
+  DEFAULT_FONT_TYPE = :japanese
 
-  attr_reader :deck, :table, :tapped
+  attr_reader :deck, :table
 
   def initWithDeck(deck, fontType: font_type)
     self.initWithNibName(nil, bundle: nil)
@@ -16,6 +17,9 @@ class PoemTableController < UITableViewController
   def viewDidLoad
     super
 
+    unless @deck
+      self.initWithDeck(Deck.new, fontType: DEFAULT_FONT_TYPE)
+    end
     @table = UITableView.alloc.initWithFrame(self.view.bounds)
     @table.rowHeight= DEFAULT_ROW_HEIGHT
     self.view.addSubview(@table)
@@ -58,10 +62,10 @@ class PoemTableController < UITableViewController
   end
 
   def tableView(tableView, didSelectRowAtIndexPath: indexPath)
-    @tapped = true
     poem = self.deck.poems[indexPath.row]
     torifuda_controller = TorifudaController.alloc.initWithFudaHeight(TorifudaController::DEFAULT_HEIGHT,
                                                                       poem: poem)
+    @tapped_poem = poem
     self.navigationController.pushViewController(torifuda_controller, animated: true)
   end
 

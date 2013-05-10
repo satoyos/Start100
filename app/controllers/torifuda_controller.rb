@@ -2,10 +2,17 @@ class TorifudaController < UIViewController
   DEFAULT_HEIGHT = 300
   TATAMI_JPG_FILE = 'tatami 002.jpg'
 
-  PROPERTIES = [:fuda_height, :fuda_view, :number, :player]
+  PROPERTIES = [:fuda_height, :fuda_view, :number, :player, :fuda_proportion]
   PROPERTIES.each do |prop|
     attr_reader prop
   end
+
+  VIEW_FRAME_DEBUG = false
+
+  # テストで呼び出す際のデフォルトデータ
+  DEFAULT_POEM_NUMBER = 2
+  DEFAULT_SHIMO = 'ころもほすてふあまのかくやま'
+  ACC_LABEL_OF_TATAMI_VIEW = 'tatami_view'
 
   def initWithFudaHeight(fuda_height, string: string)
     self.initWithNibName(nil, bundle: nil)
@@ -17,10 +24,6 @@ class TorifudaController < UIViewController
   def initWithFudaHeight(fuda_height, poem: poem)
     self.initWithFudaHeight(fuda_height, string: poem.in_hiragana.shimo)
     @number = poem.number
-    base_name = 'audio/%03d' % self.number
-    url = NSURL.fileURLWithPath(NSBundle.mainBundle.pathForResource(base_name, ofType: "m4a"))
-    er = Pointer.new(:object)
-    @player = AVAudioPlayer.alloc.initWithContentsOfURL(url, error: er)
 
     self
 
@@ -29,12 +32,24 @@ class TorifudaController < UIViewController
   def viewDidLoad
     super
 
+    unless @fuda_height
+      @number = DEFAULT_POEM_NUMBER
+      self.initWithFudaHeight(DEFAULT_HEIGHT, string: DEFAULT_SHIMO)
+    end
+
     # self.viewの上に、self.viewと同じ大きさの畳画像Viewを重ねる。
     set_tatami_view_on_me()
 
     # 札Viewのframe設定と畳上への描画
-    set_fuda_view_on_me()
+    set_fuda_view_on_tatami()
 
+    set_audio_player_and_play()
+  end
+
+  def set_audio_player_and_play
+    base_name = 'audio/%03d' % self.number
+    @player = AudioPlayerFactory.create_player_by_path(base_name, ofType: 'm4a')
+    @player.delegate = self
     @player.play
   end
 
@@ -49,12 +64,13 @@ class TorifudaController < UIViewController
           UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight
       tatami.contentMode= UIViewContentModeScaleAspectFill
       tatami.clipsToBounds= true
+      tatami.accessibilityLabel= ACC_LABEL_OF_TATAMI_VIEW
     end
     self.view.addSubview(@tatami_view)
   end
 
   # 札Viewのframe設定と畳上への描画
-  def set_fuda_view_on_me
+  def set_fuda_view_on_tatami
     @fuda_view.set_size_by_height(@fuda_height)
     fuda_size   = @fuda_view.frame.size
     tatami_size = @tatami_view.frame.size
@@ -64,6 +80,10 @@ class TorifudaController < UIViewController
     @fuda_view.frame= [fuda_origin, fuda_size]
     @tatami_view.addSubview(@fuda_view)
     @fuda_proportion = @fuda_height / (@tatami_view.frame.size.height - height_offset)
+    debug_puts_initial_size(height_offset) if VIEW_FRAME_DEBUG
+  end
+
+  def debug_puts_initial_size(height_offset)
     puts '------ 初期状態のサイズ  ------'
     puts_views_data
     puts "heigt_offset => #{height_offset}"
@@ -82,8 +102,28 @@ class TorifudaController < UIViewController
                     end
   end
 
+  def should_hide_navigation_bar?(orientation)
+    set_navigation_bar_hidden = case orientation
+                                  when UIDeviceOrientationPortrait
+                                    false
+                                  else
+                                    true
+                                end
+  end
 
-  private :set_tatami_view_on_me, :set_fuda_view_on_me, :calc_height_offset
+  def puts_views_data
+    @tatami_view.frame.tap do |f|
+      puts "@tatami_view.frame.origin : #{[f.origin.x, f.origin.y]}"
+      puts "@tatami_view.frame.size   : #{[f.size.width, f.size.height]}"
+    end
+    @fuda_view.frame.tap do |f|
+      puts "@fuda_view.frame.origin   : #{[f.origin.x, f.origin.y]}"
+      puts "@fuda_view.frame.size     : #{[f.size.width, f.size.height]}"
+    end
+  end
+
+  private :set_tatami_view_on_me, :set_fuda_view_on_tatami, :calc_height_offset
+  private :debug_puts_initial_size, :should_hide_navigation_bar?, :puts_views_data
 
   # 回転して良いものとする。
   def shouldAutorotate
@@ -108,111 +148,14 @@ class TorifudaController < UIViewController
     new_fuda_height = @tatami_view.frame.size.height * @fuda_proportion
     @fuda_view.set_size_by_height(new_fuda_height)
     @fuda_view.center= @tatami_view.center
+    debug_puts_on_rotation() if VIEW_FRAME_DEBUG
+  end
+
+  def debug_puts_on_rotation
     puts '++++ 回転によるサイズ変更 ++++'
     puts_views_data
     puts '++++++++++++++++++++++++++++'
   end
+  private :debug_puts_on_rotation
 
-  def should_hide_navigation_bar?(orientation)
-    set_navigation_bar_hidden = case orientation
-                                  when UIDeviceOrientationPortrait
-                                    false
-                                  else
-                                    true
-                                end
-  end
-
-  def puts_views_data
-    @tatami_view.frame.tap do |f|
-      puts "@tatami_view.frame.origin : #{[f.origin.x, f.origin.y]}"
-      puts "@tatami_view.frame.size   : #{[f.size.width, f.size.height]}"
-    end
-    @fuda_view.frame.tap do |f|
-      puts "@fuda_view.frame.origin   : #{[f.origin.x, f.origin.y]}"
-      puts "@fuda_view.frame.size     : #{[f.size.width, f.size.height]}"
-    end
-  end
-
-  private :should_hide_navigation_bar?, :puts_views_data
 end
-
-
-__END__
-
-
-
-
-  def slider_test
-    slider_height = 25
-    slider_size = CGSizeMake(@tatami_view.frame.size.width-20, slider_height)
-    slider = UISlider.alloc.initWithFrame([[10, @tatami_view.frame.size.height - slider_height],
-                                           slider_size])
-    #noinspection RailsParamDefResolve
-    tapGestureRecognizer = UITapGestureRecognizer.alloc.initWithTarget(self, action: 'slider_tapped:')
-    tapGestureRecognizer.numberOfTapsRequired= 2
-    slider.addGestureRecognizer(tapGestureRecognizer)
-
-#    slider.continuous= false
-    slider.minimumValue= 100
-    slider.maximumValue= 900
-    slider.value= @fuda_view.frame.size.height # 初期値
-                               #noinspection RailsParamDefResolve
-    slider.addTarget(self, action: 'slider_value_changed:', forControlEvents: UIControlEventValueChanged)
-
-    self.view.addSubview(slider)
-
-    label = UILabel.alloc.initWithFrame(CGRectZero)
-    label.text= label_str_of_power()
-    label.textAlignment= UITextAlignmentCenter
-    label.layer.cornerRadius= 8
-    label.backgroundColor= '#AAB3FF'.to_color
-    label.sizeToFit
-    label_width  = 200
-    label_height = label.frame.size.height
-    label.frame = CGRectMake((self.view.size.width - label_width) / 2,
-                             slider.frame.origin.y - label_height - 10,
-                             label_width, label_height)
-    @power_label = label
-    self.view.addSubview(@power_label)
-  end
-
-  def slider_value_changed(sender)
-    set_size_by_height(sender.value)
-    @power_label.text= label_str_of_power
-  end
-
-  def label_str_of_power
-    size = @fuda_view.frame.size
-    '札のサイズ = %3dx%3d ' % [size.width, size.height]
-  end
-
-
-  def calc_fuda_proportion
-    fuda_proportion = @fuda_view.frame.size.height / self.view.frame.size.height
-  end
-
-
-
-
-
-  THUMB_WIDTH = 11
-
-  def slider_tapped(gesture_recognizer)
-    if gesture_recognizer.state == UIGestureRecognizerStateEnded
-      slider = gesture_recognizer.view
-      x = gesture_recognizer.locationInView(slider).x
-      puts "x = #{x}"
-      slider_min_x = slider.frame.origin.x + THUMB_WIDTH
-      slider_max_x = slider.frame.origin.x + slider.frame.size.width - THUMB_WIDTH
-      x = slider_min_x if x < slider_min_x
-      x = slider_max_x if x > slider_max_x
-      slider_min_val = slider.minimumValue
-      slider_max_val = slider.maximumValue
-
-      slider.value = slider_min_val + (x - slider_min_x) / (slider_max_x - slider_min_x) * (slider_max_val - slider_min_val)
-
-      set_size_by_height(slider.value, @tatami_view)
-    end
-
-  end
-
