@@ -14,5 +14,7 @@ Motion::Project::App.setup do |app|
   app.identifier = 'com.satoyos.Start_100'
 
   app.provisioning_profile = '/Users/yoshi/Library/MobileDevice/Provisioning/My_Provisioning_for_Test_App_on_iPhone5.mobileprovision'
-	
+
+  app.icons = ['tori-icon.png', 'tori-icon@2x.png']
+  app.prerendered_icon = true
 end
