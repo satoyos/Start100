@@ -32,18 +32,20 @@ class TorifudaController < UIViewController
   def viewDidLoad
     super
 
+    prepare_unit_test()
+
+    set_tatami_view_on_me()
+
+    set_fuda_view_on_tatami()
+
+    set_audio_player_and_play()
+  end
+
+  def prepare_unit_test
     unless @fuda_height
       @number = DEFAULT_POEM_NUMBER
       self.initWithFudaHeight(DEFAULT_HEIGHT, string: DEFAULT_SHIMO)
     end
-
-    # self.viewの上に、self.viewと同じ大きさの畳画像Viewを重ねる。
-    set_tatami_view_on_me()
-
-    # 札Viewのframe設定と畳上への描画
-    set_fuda_view_on_tatami()
-
-    set_audio_player_and_play()
   end
 
   def set_audio_player_and_play
@@ -55,8 +57,7 @@ class TorifudaController < UIViewController
 
   # self.viewの上に、self.viewと同じ大きさの畳画像Viewを重ねる。
   def set_tatami_view_on_me
-    image = UIImage.imageNamed(TATAMI_JPG_FILE)
-    @tatami_view = UIImageView.alloc.initWithImage(image)
+    @tatami_view = UIImageView.alloc.initWithImage(UIImage.imageNamed(TATAMI_JPG_FILE))
     size = self.view.frame.size
     @tatami_view.tap do |tatami|
       tatami.frame = [[0.0, 0.0], size]
@@ -65,8 +66,8 @@ class TorifudaController < UIViewController
       tatami.contentMode= UIViewContentModeScaleAspectFill
       tatami.clipsToBounds= true
       tatami.accessibilityLabel= ACC_LABEL_OF_TATAMI_VIEW
+      self.view.addSubview(tatami)
     end
-    self.view.addSubview(@tatami_view)
   end
 
   # 札Viewのframe設定と畳上への描画
@@ -74,7 +75,7 @@ class TorifudaController < UIViewController
     @fuda_view.set_size_by_height(@fuda_height)
     fuda_size   = @fuda_view.frame.size
     tatami_size = @tatami_view.frame.size
-    height_offset = calc_height_offset()
+#    height_offset = height_offset()
     fuda_origin = CGPointMake(tatami_size.width  / 2 - fuda_size.width  / 2,
                               tatami_size.height / 2 - fuda_size.height / 2 - height_offset / 2)
     @fuda_view.frame= [fuda_origin, fuda_size]
@@ -93,7 +94,7 @@ class TorifudaController < UIViewController
   # 初期状態のself.viewは、画面いっぱいのサイズ。
   # しかし、回転後にリサイズされる時には、navigationBarなどの領域が差し引かれたサイズになる。
   # そこで、初期状態の場合も回転後のサイズと同じサイズになるよう、heightの補正を行う。
-  def calc_height_offset
+  def height_offset
     height_offset = case self.navigationController
                       when nil;
                         0
@@ -122,7 +123,7 @@ class TorifudaController < UIViewController
     end
   end
 
-  private :set_tatami_view_on_me, :set_fuda_view_on_tatami, :calc_height_offset
+  private :set_tatami_view_on_me, :set_fuda_view_on_tatami, :height_offset
   private :debug_puts_initial_size, :should_hide_navigation_bar?, :puts_views_data
 
   # 回転して良いものとする。

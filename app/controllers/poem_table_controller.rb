@@ -44,10 +44,6 @@ class PoemTableController < UITableViewController
         UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle,
         reuseIdentifier: @reuseIdentifier)
 
-    cell.contentView.subviews.each do |subview|
-      subview.removeFromSuperview
-    end
-
     poem = self.deck.poems[indexPath.row]
     cell.tap do |c|
       c.textLabel.text = '%3d. %s %s %s' % [poem.number, poem.liner[0], poem.liner[1], poem.liner[2]]
@@ -62,10 +58,9 @@ class PoemTableController < UITableViewController
   end
 
   def tableView(tableView, didSelectRowAtIndexPath: indexPath)
-    poem = self.deck.poems[indexPath.row]
+    @tapped_poem = self.deck.poems[indexPath.row]
     torifuda_controller = TorifudaController.alloc.initWithFudaHeight(TorifudaController::DEFAULT_HEIGHT,
-                                                                      poem: poem)
-    @tapped_poem = poem
+                                                                      poem: @tapped_poem)
     self.navigationController.pushViewController(torifuda_controller, animated: true)
   end
 

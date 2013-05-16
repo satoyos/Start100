@@ -11,6 +11,8 @@ describe 'Deck' do
 
     it 'should have 100 element' do
       @poems.size.should.be.equal 100
+#      RubyMotionでは、この↓書き方はできない。(ERRORになる)
+#      @poems.should.have(100).items
     end
 
     it 'has first Poem that is No.1 and made by "天智天皇"' do

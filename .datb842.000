@@ -1,5 +1,0 @@
-window = App.delegate.instance_variable_get("@window")
-App.delegate
-App
-p App
-exit

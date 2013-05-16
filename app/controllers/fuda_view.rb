@@ -33,9 +33,9 @@ class FudaView < UIImageView
     # 札Viewのframeを決める(originは未定)
     @height = fuda_height
     @fuda_power  = fuda_height / FUDA_SIZE_IN_MM.height
-    width = FUDA_SIZE_IN_MM.width * @fuda_power
+    fuda_width = FUDA_SIZE_IN_MM.width * @fuda_power
 
-    self.frame = [CGPointZero, [width, fuda_height]]
+    self.frame = [CGPointZero, [fuda_width, fuda_height]]
 
     # 札Viewの子ビューについて、サイズを決定する。
     set_size_of_subviews()
@@ -46,8 +46,7 @@ class FudaView < UIImageView
 
   # 緑和紙の「額縁」を生成して載せる。
   def create_green_frame_on_me
-    washi_image = UIImage.imageNamed(WASHI_JPG_FILE)
-    self.initWithImage(washi_image)
+    self.initWithImage(UIImage.imageNamed(WASHI_JPG_FILE))
   end
 
   # 札の白台紙ビューを生成して載せる。
@@ -57,8 +56,8 @@ class FudaView < UIImageView
     @fuda_inside_view.tap do |i_view|
       i_view.backgroundColor= INSIDE_COLOR
       i_view.accessibilityLabel= ACC_LABEL_OF_INSIDE_VIEW
+      self.addSubview(i_view)
     end
-    self.addSubview(@fuda_inside_view)
   end
 
   # stringの1文字ずつを割り当てた15枚のラベルを生成して載せる。
@@ -74,9 +73,9 @@ class FudaView < UIImageView
         l.font= label_font
         l.textAlignment= UITextAlignmentCenter
         l.backgroundColor= UIColor.clearColor
+        self.addSubview(l)
+        @labels15 << l
       end
-      self.addSubview(label)
-      @labels15 << label
     end
   end
 
