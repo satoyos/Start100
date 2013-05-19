@@ -49,18 +49,21 @@ class TorifudaController < UIViewController
   end
 
   def set_audio_player_and_play
-    base_name = 'audio/%03d' % self.number
-    @player = AudioPlayerFactory.create_player_by_path(base_name, ofType: 'm4a')
+    @player = AudioPlayerFactory.create_player_by_path(yomi_basename,
+                                                       ofType: 'm4a')
     @player.delegate = self
     @player.play
+  end
+
+  def yomi_basename
+    'audio/%03d' % self.number
   end
 
   # self.viewの上に、self.viewと同じ大きさの畳画像Viewを重ねる。
   def set_tatami_view_on_me
     @tatami_view = UIImageView.alloc.initWithImage(UIImage.imageNamed(TATAMI_JPG_FILE))
-    size = self.view.frame.size
     @tatami_view.tap do |tatami|
-      tatami.frame = [[0.0, 0.0], size]
+      tatami.frame = [[0.0, 0.0], size_of_view]
       tatami.autoresizingMask=
           UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight
       tatami.contentMode= UIViewContentModeScaleAspectFill
@@ -70,26 +73,38 @@ class TorifudaController < UIViewController
     end
   end
 
+  def size_of_view
+    self.view.frame.size
+  end
+
   # 札Viewのframe設定と畳上への描画
   def set_fuda_view_on_tatami
-    @fuda_view.set_size_by_height(@fuda_height)
-    fuda_size   = @fuda_view.frame.size
-    tatami_size = @tatami_view.frame.size
-#    height_offset = height_offset()
+    @fuda_view.set_all_sizes_by(@fuda_height)
     fuda_origin = CGPointMake(tatami_size.width  / 2 - fuda_size.width  / 2,
                               tatami_size.height / 2 - fuda_size.height / 2 - height_offset / 2)
     @fuda_view.frame= [fuda_origin, fuda_size]
     @tatami_view.addSubview(@fuda_view)
-    @fuda_proportion = @fuda_height / (@tatami_view.frame.size.height - height_offset)
+    @fuda_proportion = @fuda_height / (tatami_size.height - height_offset)
     debug_puts_initial_size(height_offset) if VIEW_FRAME_DEBUG
   end
 
+  def fuda_size
+    @fuda_view.frame.size
+  end
+  private :fuda_size
+
+  def tatami_size
+    @tatami_view.frame.size
+  end
+  private :tatami_size
+  
   def debug_puts_initial_size(height_offset)
     puts '------ 初期状態のサイズ  ------'
     puts_views_data
-    puts "heigt_offset => #{height_offset}"
+    puts "height_offset => #{height_offset}"
     puts '-----------------------------'
   end
+
 
   # 初期状態のself.viewは、画面いっぱいのサイズ。
   # しかし、回転後にリサイズされる時には、navigationBarなどの領域が差し引かれたサイズになる。
@@ -146,11 +161,15 @@ class TorifudaController < UIViewController
     prev_orientation = @orientation || UIDeviceOrientationPortrait
     puts "(rotating) orientation: #{prev_orientation} => #{orientation}"
     @orientation = orientation
-    new_fuda_height = @tatami_view.frame.size.height * @fuda_proportion
-    @fuda_view.set_size_by_height(new_fuda_height)
+    @fuda_view.set_all_sizes_by(new_fuda_height)
     @fuda_view.center= @tatami_view.center
     debug_puts_on_rotation() if VIEW_FRAME_DEBUG
   end
+  
+  def new_fuda_height
+    @tatami_view.frame.size.height * @fuda_proportion
+  end
+  
 
   def debug_puts_on_rotation
     puts '++++ 回転によるサイズ変更 ++++'

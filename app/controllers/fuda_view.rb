@@ -20,29 +20,36 @@ class FudaView < UIImageView
   # 札Viewのサイズ(frame.size)を決め、上に載るオブジェクトを積み上げる。
   # 札Viewの位置(frame.origin)にはCGPointZeroを設定する
   def initWithString(string)
-    self.accessibilityLabel= ACCESSIBILITY_LABEL
+    set_accessibility_label()
     create_green_frame_on_me()
     create_background_view_on_me()
     create_labels_on_me(string)
     self
   end
 
+  def set_accessibility_label
+    self.accessibilityLabel= ACCESSIBILITY_LABEL
+  end
+
   # 札Viewのframe.sizeを決めてしまう。
   # また、札Viewに乗っているSubviewsのサイズもこのタイミングで決めてしまう。
-  def set_size_by_height(fuda_height)
-    # 札Viewのframeを決める(originは未定)
-    @height = fuda_height
-    @fuda_power  = fuda_height / FUDA_SIZE_IN_MM.height
-    fuda_width = FUDA_SIZE_IN_MM.width * @fuda_power
-
-    self.frame = [CGPointZero, [fuda_width, fuda_height]]
-
-    # 札Viewの子ビューについて、サイズを決定する。
+  def set_all_sizes_by(fuda_height)
+    set_fuda_size_by(fuda_height)
     set_size_of_subviews()
   end
 
   # 以下、プライベートな定義
   private
+
+  def set_fuda_size_by(fuda_height)
+    @height = fuda_height
+    @fuda_power = fuda_height / FUDA_SIZE_IN_MM.height
+    self.frame = [CGPointZero, [fuda_width, fuda_height]]
+  end
+
+  def fuda_width
+    FUDA_SIZE_IN_MM.width * @fuda_power
+  end
 
   # 緑和紙の「額縁」を生成して載せる。
   def create_green_frame_on_me
@@ -81,43 +88,62 @@ class FudaView < UIImageView
 
   # 札View自体のサイズが決定した結果を受けて、札Viewの子Viewのサイズも決める。
   def set_size_of_subviews
-    # フォントのサイズと札の緑の額縁の幅は、@fuda_powerを元にここで計算している。
-    @font_size = @fuda_power * FONT_SIZE_DIVIDED_BY_POWER
-    @green_offset = @fuda_power * OFFSET_DIVIDED_BY_POWER
-
-    # 札の白い和紙部分や、その中のラベルのサイズ、フォントのサイズをここで決める。
+    calc_font_size()
+    calc_green_offset()
     set_fuda_inside_view_size()
-    set_label_size()
+    set_label_frame_and_font()
+  end
+
+  def calc_font_size
+    @font_size = @fuda_power * FONT_SIZE_DIVIDED_BY_POWER
+  end
+
+  def calc_green_offset
+    @green_offset = @fuda_power * OFFSET_DIVIDED_BY_POWER
   end
 
   # 札の白い和紙部分のViewについて、サイズを決定。
   def set_fuda_inside_view_size
-    fuda_size = self.frame.size
     @fuda_inside_view.frame = CGRectMake(@green_offset,
                                          @green_offset,
                                          fuda_size.width  - @green_offset * 2,
                                          fuda_size.height - @green_offset * 2)
   end
 
-  def set_label_size
-    fuda_size = self.frame.size
-    label_size = CGSizeMake((fuda_size.width - @green_offset * 2) / 3,
-                            (fuda_size.height - @green_offset * 2) / 5)
-    label_origin_zero = CGPoint.new(@green_offset, @green_offset + @font_size * 2 / 10)
-    # 和風フォントで上下方向のセンタリングがうまく機能しないので、補正。 ^^^^^^^^^^^^^^^^^^^^^
+  def fuda_size
+    self.frame.size
+  end
+  
+  def set_label_frame_and_font
     new_font = @labels15.first.font.fontWithSize(@font_size)
-    @labels15.each_with_index do |label, idx|
-      clmn_idx = case idx
-                   when (0..4); 2
-                   when (5..9); 1
-                   else       ; 0
-                 end
-      label_origin =
-          CGPointMake(label_origin_zero.x + label_size.width * clmn_idx,
-                      label_origin_zero.y + label_size.height * (idx % 5))
-      label.frame = [label_origin, label_size]
+    @labels15.each_with_index do |label, label_number|
+      label.frame = [label_origin_of(label_number), label_size]
       label.font  = new_font
-
     end
+  end
+
+  def label_origin_of(label_number)
+    CGPointMake(
+        label_origin_zero.x + label_size.width * column_number_of(label_number),
+        label_origin_zero.y + label_size.height * (label_number % 5))
+  end
+
+  def column_number_of(label_number)
+    case label_number
+      when (0..4); 2
+      when (5..9); 1
+      else       ; 0
+    end
+  end
+
+  def label_size
+    CGSizeMake((fuda_size.width - @green_offset * 2) / 3,
+               (fuda_size.height - @green_offset * 2) / 5)
+  end
+  
+  def label_origin_zero
+    CGPoint.new(@green_offset, @green_offset + @font_size * 2 / 10)
+    #                              この補正は…^^^^^^^^^^^^^^^^^^^^^
+    # 和風フォントで上下方向のセンタリングがうまく機能しないため、仕方なく行っている。
   end
 end

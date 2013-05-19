@@ -33,14 +33,14 @@ describe 'FudaView' do
 
     before do
       # 一度札Viewの高さをINITIAL_HEIGHTに設定しておき、その時の諸々のサイズを取得しておく。
-      @fuda_view.set_size_by_height(INITIAL_HEIGHT)
+      @fuda_view.set_all_sizes_by(INITIAL_HEIGHT)
       @fuda_view.instance_eval do
         @org_inside_view_size = @fuda_inside_view.frame.size
         @org_label_size = @labels15.first.frame.size
       end
 
       # その後、札Viewの高さをINITIAL_HEIGHTの半分に再設定。
-      @fuda_view.set_size_by_height(INITIAL_HEIGHT/2)
+      @fuda_view.set_all_sizes_by(INITIAL_HEIGHT/2)
 
     end
     it 'should have half size frame' do
