@@ -11,11 +11,13 @@ class Deck
   end
 
   def read_poems
-    new_path = BW::App.resources_path().stringByAppendingPathComponent JSON_FILE
     self.poems=[]
-    BW::JSON.parse(File.read(new_path)).each do |poem_hash|
+    BW::JSON.parse(File.read(json_path_bw)).each do |poem_hash|
       self.poems << Poem.new(poem_hash)
     end
+  end
 
+  def json_path_bw
+    BW::App.resources_path().stringByAppendingPathComponent JSON_FILE
   end
 end

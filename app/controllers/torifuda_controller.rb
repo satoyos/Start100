@@ -31,13 +31,9 @@ class TorifudaController < UIViewController
 
   def viewDidLoad
     super
-
     prepare_unit_test()
-
     set_tatami_view_on_me()
-
     set_fuda_view_on_tatami()
-
     set_audio_player_and_play()
   end
 
