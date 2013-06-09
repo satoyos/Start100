@@ -1,4 +1,4 @@
-# transported code in the page
+# transported from code in Objective-C on ...
 # http://stackoverflow.com/questions/6141298/how-to-scale-down-a-uiimage-and-make-it-crispy-sharp-at-the-same-time-instead
 
 module ResizeUIImage
@@ -10,9 +10,16 @@ module ResizeUIImage
 
     # Set the quality level to use when rescaling
     CGContextSetInterpolationQuality(context, KCGInterpolationHigh)
-    flipVertical = CGAffineTransformMake(1, 0, 0, -1, 0, newSize.height);
+    flipVertical = CGAffineTransformMake(1, 0, 0, -1, 0, newSize.height)
 
-    return flipVertical
-    #%Todo: ↑CGAffineTransformが返るようになった！ので、続きから！
+    CGContextConcatCTM(context, flipVertical)
+    # Draw into the context; this scales the image
+    CGContextDrawImage(context, newRect, imageRef)
+
+    # Get the resized image from the context and a UIImage
+    newImageRef = CGBitmapContextCreateImage(context)
+    newImage = UIImage.imageWithCGImage(newImageRef)
+
+    return newImage
   end
 end

@@ -16,5 +16,6 @@ nbproject
 .sass-cache
 .idea
 /*.lock
-/vendor/bundle
+/vendor/*
 .dat*
+/.bundle
