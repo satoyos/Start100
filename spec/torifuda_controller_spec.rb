@@ -73,7 +73,7 @@ EOF
     tests TorifudaController
 
     it 'should hav 15 UILabels' do
-      views(UILabel).size.should.be.equal 15
+      views(UILabel).select{|l| l.accessibilityLabel =~ /Fuda/}.size.should.be.equal 15
     end
 
     it 'should have a tatamiView, a FudaView, and a insideView' do

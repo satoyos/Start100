@@ -5,10 +5,10 @@ class TorifudaController < UIViewController
   VOLUME_BUTTON_IMG_SIZE = CGSizeMake(20, 20)
   INITIAL_VOLUME = 0.5
   AUDIO_PLAYER_VOLUME_MAX = 1.0
-  VOLUME_BUTTON_TITLE = '音量'
   VOLUME_VIEW_HEIGHT = 120
   VOLUME_VIEW_COLOR = UIColor.whiteColor
-  VOLUME_X_MARGIN = 10
+  CLOSE_BUTTON_TEXT = 'この音量に設定'
+  CLOSE_BUTTON_BOTTOM_OFFSET = 10
 
   PROPERTIES = [:fuda_height, :fuda_view, :number, :player, :fuda_proportion, :volume_view, :slider]
   PROPERTIES.each do |prop|
@@ -62,8 +62,30 @@ class TorifudaController < UIViewController
     @volume_view ||= UIView.alloc.initWithFrame(volume_view_initial_frame)
     @volume_view.tap do |v_view|
       v_view.backgroundColor= VOLUME_VIEW_COLOR
+      v_view.addSubview(close_button(@volume_view.frame))
       self.view.addSubview(v_view)
     end
+  end
+
+  def close_button(vol_view_frame)
+    button = UIButton.buttonWithType(UIButtonTypeRoundedRect)
+    button.tap do |b|
+      b.setTitle(CLOSE_BUTTON_TEXT, forState: UIControlStateNormal)
+      b.sizeToFit
+      b.frame= [CGPointMake((vol_view_frame.size.width - b.frame.size.width)/2,
+                            vol_view_frame.size.height - CLOSE_BUTTON_BOTTOM_OFFSET - b.frame.size.height),
+                b.frame.size]
+      b.addTarget(self,
+                  action: :sweep_volume_view,
+                  forControlEvents: UIControlEventTouchUpInside)
+    end
+    button
+  end
+
+  def sweep_volume_view
+    UIView.animateWithDuration(1.0,
+                               animations: lambda{set_volume_view_disappear})
+    self.navigationItem.rightBarButtonItem.enabled= true
   end
 
   def volume_view_initial_frame
@@ -75,7 +97,7 @@ class TorifudaController < UIViewController
     UIBarButtonItem.alloc.initWithImage(volume_button_image,
                                         style: UIBarButtonItemStylePlain,
                                         target: self,
-                                        action: :make_volume_view_appear)
+                                        action: :show_volume_view)
 
   end
 
@@ -84,7 +106,7 @@ class TorifudaController < UIViewController
                               newSize: VOLUME_BUTTON_IMG_SIZE)
   end
 
-  def make_volume_view_appear
+  def show_volume_view
     self.navigationItem.rightBarButtonItem.enabled= false
     UIView.animateWithDuration(1.0,
                                animations: lambda{set_volume_view_appear})
@@ -93,6 +115,10 @@ class TorifudaController < UIViewController
   def set_volume_view_appear
     @volume_view.frame= [CGPointMake(0, 0),
                          CGSizeMake(self.view.frame.size.width, VOLUME_VIEW_HEIGHT)]
+  end
+
+  def set_volume_view_disappear
+    @volume_view.frame= volume_view_initial_frame
   end
 
   def set_audio_player_and_play

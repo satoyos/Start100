@@ -17,6 +17,7 @@ describe 'FudaView' do
         @labels15.size.should == 15
         idx = Random.new.rand(0..14)
         @labels15[idx].text.should.be.equal (SHIMO_STR[idx] || '')
+        @labels15[idx].accessibilityLabel.should.be.eql? FudaView::STR_FOR_FUDA_LABEL_ACC % idx
       end
     end
     it 'should have labels of FontType: japanese' do

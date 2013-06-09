@@ -16,6 +16,7 @@ class FudaView < UIImageView
   STRING_NOT_SET_MESSAGE = '札の文字はまだ決まっていません'
   ACCESSIBILITY_LABEL = 'fuda_view'
   ACC_LABEL_OF_INSIDE_VIEW = 'inside_view'
+  STR_FOR_FUDA_LABEL_ACC = 'FudaChar%02d'
 
   # 札Viewのサイズ(frame.size)を決め、上に載るオブジェクトを積み上げる。
   # 札Viewの位置(frame.origin)にはCGPointZeroを設定する
@@ -80,6 +81,7 @@ class FudaView < UIImageView
         l.font= label_font
         l.textAlignment= UITextAlignmentCenter
         l.backgroundColor= UIColor.clearColor
+        l.accessibilityLabel= STR_FOR_FUDA_LABEL_ACC % idx
         self.addSubview(l)
         @labels15 << l
       end
