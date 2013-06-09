@@ -1,8 +1,16 @@
 class TorifudaController < UIViewController
   DEFAULT_HEIGHT = 300
   TATAMI_JPG_FILE = 'tatami 002.jpg'
+  VOLUME_BUTTON_PNG_FILE = 'speaker_640.png'
+  VOLUME_BUTTON_IMG_SIZE = CGSizeMake(20, 20)
+  INITIAL_VOLUME = 0.5
+  AUDIO_PLAYER_VOLUME_MAX = 1.0
+  VOLUME_BUTTON_TITLE = '音量'
+  VOLUME_VIEW_HEIGHT = 120
+  VOLUME_VIEW_COLOR = UIColor.whiteColor
+  VOLUME_X_MARGIN = 10
 
-  PROPERTIES = [:fuda_height, :fuda_view, :number, :player, :fuda_proportion]
+  PROPERTIES = [:fuda_height, :fuda_view, :number, :player, :fuda_proportion, :volume_view, :slider]
   PROPERTIES.each do |prop|
     attr_reader prop
   end
@@ -32,9 +40,11 @@ class TorifudaController < UIViewController
   def viewDidLoad
     super
     prepare_unit_test()
+    set_audio_player_and_play()
+    set_volume_button_on_top_bar()
     set_tatami_view_on_me()
     set_fuda_view_on_tatami()
-    set_audio_player_and_play()
+    set_hidden_volume_view_on_me()
   end
 
   def prepare_unit_test
@@ -44,15 +54,62 @@ class TorifudaController < UIViewController
     end
   end
 
+  def set_volume_button_on_top_bar
+    self.navigationItem.setRightBarButtonItem(volume_button_item)
+  end
+
+  def set_hidden_volume_view_on_me
+    @volume_view ||= UIView.alloc.initWithFrame(volume_view_initial_frame)
+    @volume_view.tap do |v_view|
+      v_view.backgroundColor= VOLUME_VIEW_COLOR
+      self.view.addSubview(v_view)
+    end
+  end
+
+  def volume_view_initial_frame
+    [CGPointMake(0, -1*VOLUME_VIEW_HEIGHT),
+     CGSizeMake(self.view.frame.size.width, VOLUME_VIEW_HEIGHT)]
+  end
+
+  def volume_button_item
+    UIBarButtonItem.alloc.initWithImage(volume_button_image,
+                                        style: UIBarButtonItemStylePlain,
+                                        target: self,
+                                        action: :make_volume_view_appear)
+
+  end
+
+  def volume_button_image
+    ResizeUIImage.resizeImage(UIImage.imageNamed(VOLUME_BUTTON_PNG_FILE),
+                              newSize: VOLUME_BUTTON_IMG_SIZE)
+  end
+
+  def make_volume_view_appear
+    self.navigationItem.rightBarButtonItem.enabled= false
+    UIView.animateWithDuration(1.0,
+                               animations: lambda{set_volume_view_appear})
+  end
+
+  def set_volume_view_appear
+    @volume_view.frame= [CGPointMake(0, 0),
+                         CGSizeMake(self.view.frame.size.width, VOLUME_VIEW_HEIGHT)]
+  end
+
   def set_audio_player_and_play
     @player = AudioPlayerFactory.create_player_by_path(yomi_basename,
                                                        ofType: 'm4a')
     @player.delegate = self
+    @player.volume = INITIAL_VOLUME
     @player.play
   end
 
   def yomi_basename
     'audio/%03d' % self.number
+  end
+
+
+  def player_volume_changed
+    @player.volume= @slider.value
   end
 
   # self.viewの上に、self.viewと同じ大きさの畳画像Viewを重ねる。
@@ -175,3 +232,26 @@ class TorifudaController < UIViewController
   private :debug_puts_on_rotation
 
 end
+
+__END__
+
+  def set_slider_on_top_bar
+    @slider = UISlider.alloc.initWithFrame(CGRectZero)
+    @slider.frame= self.navigationController.navigationBar.bounds
+    @slider.maximumValue = AUDIO_PLAYER_VOLUME_MAX
+    @slider.value = @player.volume
+    @slider.addTarget(self,
+                 action: :player_volume_changed,
+                 forControlEvents: UIControlEventValueChanged)
+    self.navigationItem.titleView= @slider
+  end
+
+
+=begin
+      sl.frame=
+          [CGPointMake(VOLUME_X_MARGIN,
+                       self.view.frame.size.height - height_offset - VOLUME_HEIGHT),
+           CGSizeMake(self.view.frame.size.width - VOLUME_X_MARGIN*2,
+                      VOLUME_HEIGHT)]
+      self.setToolbarItems([@slider], animated: true)
+=end

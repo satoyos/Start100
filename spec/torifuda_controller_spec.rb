@@ -97,6 +97,63 @@ EOF
 =end
   end
 
+  describe 'volume_slide' do
+    tests TorifudaController
+
+    before do
+      @button_item = controller.navigationItem.rightBarButtonItem
+    end
+
+    it 'should get valid volume-value from AudioPlayer' do
+      controller.player.volume.tap do |vol|
+        vol.should.not.be.nil
+        vol.should.be >= 0.0
+        vol.should.be <= 1.0
+      end
+    end
+
+    it 'should control volume of AudioPlayer' do
+      controller.player.volume = 0.2
+      controller.player.volume.should.be.close(0.2, 0.01)
+    end
+
+    it 'should have a navigationItem' do
+      controller.navigationItem.should.not.be.nil
+    end
+
+    it 'should have a volume button' do
+      @button_item.should.not.be.nil
+    end
+  end
+
+  describe 'volume_view' do
+    tests TorifudaController
+
+    before do
+      @volume_view = controller.volume_view
+    end
+
+    it 'should have a hidden volume_view' do
+      @volume_view.should.not.be.nil
+      @volume_view.is_a?(UIView).should.be.true
+      @volume_view.backgroundColor.should.eql?(TorifudaController::VOLUME_VIEW_COLOR)
+    end
+=begin
+    it 'should have a volume view' do
+      controller.slider.tap do |slider|
+        slider.should.not.be.nil
+        slider.should.is_a?(UISlider)
+        slider.maximumTrackTintColor.should == FudaView::INSIDE_COLOR
+        slider.minimumTrackTintColor.should == TorifudaController::VOLUME_MIN_COLOR
+        slider.thumbImageForState(UIControlStateNormal).should.not.be.nil
+        slider.minimumValue.should.be.equal 0.0
+        slider.maximumValue.should.be.equal 1.0
+        slider.frame.size.height.should.be.equal TorifudaController::VOLUME_HEIGHT
+      end
+    end
+=end
+  end
+
 =begin
   describe 'rotation' do
     tests TorifudaController
