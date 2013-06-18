@@ -5,10 +5,13 @@ class TorifudaController < UIViewController
   VOLUME_BUTTON_IMG_SIZE = CGSizeMake(20, 20)
   INITIAL_VOLUME = 0.5
   AUDIO_PLAYER_VOLUME_MAX = 1.0
-  VOLUME_VIEW_HEIGHT = 120
-  VOLUME_VIEW_COLOR = UIColor.whiteColor
-  CLOSE_BUTTON_TEXT = 'この音量に設定'
-  CLOSE_BUTTON_BOTTOM_OFFSET = 10
+  VOLUME_VIEW_HEIGHT = 60
+  VOLUME_VIEW_COLOR = '#68be8d'.to_color
+  VOLUME_VIEW_ALPHA = 0.7
+  VOLUME_ANIMATE_DURATION = 0.3
+  SLIDER_X_MARGIN = 10
+  SLIDER_HEIGHT = 20
+  PERSIST_VOLUME_KEY = 'volume'
 
   PROPERTIES = [:fuda_height, :fuda_view, :number, :player, :fuda_proportion, :volume_view, :slider]
   PROPERTIES.each do |prop|
@@ -62,30 +65,35 @@ class TorifudaController < UIViewController
     @volume_view ||= UIView.alloc.initWithFrame(volume_view_initial_frame)
     @volume_view.tap do |v_view|
       v_view.backgroundColor= VOLUME_VIEW_COLOR
-      v_view.addSubview(close_button(@volume_view.frame))
+      v_view.alpha= VOLUME_VIEW_ALPHA
+      v_view.addSubview(volume_slider)
       self.view.addSubview(v_view)
     end
   end
 
-  def close_button(vol_view_frame)
-    button = UIButton.buttonWithType(UIButtonTypeRoundedRect)
-    button.tap do |b|
-      b.setTitle(CLOSE_BUTTON_TEXT, forState: UIControlStateNormal)
-      b.sizeToFit
-      b.frame= [CGPointMake((vol_view_frame.size.width - b.frame.size.width)/2,
-                            vol_view_frame.size.height - CLOSE_BUTTON_BOTTOM_OFFSET - b.frame.size.height),
-                b.frame.size]
-      b.addTarget(self,
-                  action: :sweep_volume_view,
-                  forControlEvents: UIControlEventTouchUpInside)
-    end
-    button
+  def volume_slider
+    slider = UISlider.alloc.initWithFrame(volume_slider_frame)
+    slider.value= @player.volume
+    slider.addTarget(self, action: :slider_changed, forControlEvents: UIControlEventValueChanged)
+    @slider = slider
+  end
+
+  def slider_changed
+    @player.volume= @slider.value
+    App::Persistence[PERSIST_VOLUME_KEY] = @slider.value
+  end
+
+  def volume_slider_frame
+    [CGPointMake(SLIDER_X_MARGIN,
+                 (@volume_view.frame.size.height - SLIDER_HEIGHT)/2),
+     CGSizeMake(self.view.frame.size.width - 2 * SLIDER_X_MARGIN,
+                SLIDER_HEIGHT)
+    ]
   end
 
   def sweep_volume_view
-    UIView.animateWithDuration(1.0,
+    UIView.animateWithDuration(VOLUME_ANIMATE_DURATION,
                                animations: lambda{set_volume_view_disappear})
-    self.navigationItem.rightBarButtonItem.enabled= true
   end
 
   def volume_view_initial_frame
@@ -97,7 +105,7 @@ class TorifudaController < UIViewController
     UIBarButtonItem.alloc.initWithImage(volume_button_image,
                                         style: UIBarButtonItemStylePlain,
                                         target: self,
-                                        action: :show_volume_view)
+                                        action: :show_or_hide_volume_view)
 
   end
 
@@ -106,9 +114,15 @@ class TorifudaController < UIViewController
                               newSize: VOLUME_BUTTON_IMG_SIZE)
   end
 
+  def show_or_hide_volume_view
+    case @volume_view.frame.origin.y
+      when 0; sweep_volume_view
+      else  ; show_volume_view
+    end
+  end
+
   def show_volume_view
-    self.navigationItem.rightBarButtonItem.enabled= false
-    UIView.animateWithDuration(1.0,
+    UIView.animateWithDuration(VOLUME_ANIMATE_DURATION,
                                animations: lambda{set_volume_view_appear})
   end
 
@@ -125,7 +139,7 @@ class TorifudaController < UIViewController
     @player = AudioPlayerFactory.create_player_by_path(yomi_basename,
                                                        ofType: 'm4a')
     @player.delegate = self
-    @player.volume = INITIAL_VOLUME
+    @player.volume = App::Persistence[PERSIST_VOLUME_KEY] || INITIAL_VOLUME
     @player.play
   end
 
