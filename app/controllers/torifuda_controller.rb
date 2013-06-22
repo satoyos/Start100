@@ -11,7 +11,6 @@ class TorifudaController < UIViewController
   VOLUME_ANIMATE_DURATION = 0.3
   SLIDER_X_MARGIN = 10
   SLIDER_HEIGHT = 20
-  PERSIST_VOLUME_KEY = 'volume'
 
   PROPERTIES = [:fuda_height, :fuda_view, :number, :player, :fuda_proportion, :volume_view, :slider]
   PROPERTIES.each do |prop|
@@ -80,7 +79,7 @@ class TorifudaController < UIViewController
 
   def slider_changed
     @player.volume= @slider.value
-    App::Persistence[PERSIST_VOLUME_KEY] = @slider.value
+    Settings.instance.volume = @slider.value
   end
 
   def volume_slider_frame
@@ -139,7 +138,7 @@ class TorifudaController < UIViewController
     @player = AudioPlayerFactory.create_player_by_path(yomi_basename,
                                                        ofType: 'm4a')
     @player.delegate = self
-    @player.volume = App::Persistence[PERSIST_VOLUME_KEY] || INITIAL_VOLUME
+    @player.volume = Settings.instance.volume || INITIAL_VOLUME
     @player.play
   end
 
